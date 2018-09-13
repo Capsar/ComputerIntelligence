@@ -1,5 +1,5 @@
 /**
- * Products class that contains a single training product
+ * Products class that contains a single line of the training files
  * Created by Sam van Berkel on 12/09/2018.
  */
 public class Product {
