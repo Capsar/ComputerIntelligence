@@ -1,4 +1,3 @@
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,26 +43,28 @@ public class NeuralNetworkTest {
     public void computeOutput() {
         double[] result = neuralNetwork.computeOutput(new double[]{1, 1});
 
-        assertEquals(0.5097, TrainData.round(result[0]));
-        assertEquals(0.5250, TrainData.round(neuralNetwork.getHiddenLayer().get(0).getLastOutput()));
-        assertEquals(0.8808, TrainData.round(neuralNetwork.getHiddenLayer().get(1).getLastOutput()));
+        assertEquals(0.5097, Trainer.round(result[0]));
+        assertEquals(0.5250, Trainer.round(neuralNetwork.getHiddenLayer().get(0).getLastOutput()));
+        assertEquals(0.8808, Trainer.round(neuralNetwork.getHiddenLayer().get(1).getLastOutput()));
     }
 
     @Test
     public void trainNetworkTest() {
-        neuralNetwork.trainNetwork(new double[]{1, 1}, new double[]{0});
+        double meanSquaredError = neuralNetwork.trainNetwork(new double[]{1, 1}, new double[]{0});
 
-        assertEquals(0.5097, TrainData.round(neuralNetwork.getOutputLayer().get(0).getLastOutput()));
-        assertEquals(0.5250, TrainData.round(neuralNetwork.getHiddenLayer().get(0).getLastOutput()));
-        assertEquals(0.8808, TrainData.round(neuralNetwork.getHiddenLayer().get(1).getLastOutput()));
+        assertEquals(0.5097, Trainer.round(neuralNetwork.getOutputLayer().get(0).getLastOutput()));
+        assertEquals(0.5250, Trainer.round(neuralNetwork.getHiddenLayer().get(0).getLastOutput()));
+        assertEquals(0.8808, Trainer.round(neuralNetwork.getHiddenLayer().get(1).getLastOutput()));
 
-        assertEquals(-1.2067, TrainData.round(neuralNetwork.getOutputLayer().get(0).getInputs().get(0).getWeight()));
-        assertEquals(1.0888, TrainData.round(neuralNetwork.getOutputLayer().get(0).getInputs().get(1).getWeight()));
+        assertEquals(-1.2067, Trainer.round(neuralNetwork.getOutputLayer().get(0).getInputs().get(0).getWeight()));
+        assertEquals(1.0888, Trainer.round(neuralNetwork.getOutputLayer().get(0).getInputs().get(1).getWeight()));
 
-        assertEquals(0.5038, TrainData.round(neuralNetwork.getHiddenLayer().get(0).getInputs().get(0).getWeight()));
-        assertEquals(0.8985, TrainData.round(neuralNetwork.getHiddenLayer().get(1).getInputs().get(0).getWeight()));
-        assertEquals(0.4038, TrainData.round(neuralNetwork.getHiddenLayer().get(0).getInputs().get(1).getWeight()));
-        assertEquals(0.9985, TrainData.round(neuralNetwork.getHiddenLayer().get(1).getInputs().get(1).getWeight()));
+        assertEquals(0.5038, Trainer.round(neuralNetwork.getHiddenLayer().get(0).getInputs().get(0).getWeight()));
+        assertEquals(0.8985, Trainer.round(neuralNetwork.getHiddenLayer().get(1).getInputs().get(0).getWeight()));
+        assertEquals(0.4038, Trainer.round(neuralNetwork.getHiddenLayer().get(0).getInputs().get(1).getWeight()));
+        assertEquals(0.9985, Trainer.round(neuralNetwork.getHiddenLayer().get(1).getInputs().get(1).getWeight()));
+
+        assertEquals(0.2598, Trainer.round(meanSquaredError));
 
 
     }

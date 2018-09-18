@@ -1,8 +1,5 @@
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,7 +30,7 @@ public class NeuronTest {
 
         System.out.println(neuron.computeOutput(input));
 
-        assertEquals(0.5097, TrainData.round(neuron.computeOutput(input)));
+        assertEquals(0.5097, Trainer.round(neuron.computeOutput(input)));
     }
 
     @Test
@@ -44,7 +41,7 @@ public class NeuronTest {
 
         double errorGradient = neuron.computeErrorGradientOutputLayer(0);
 
-        assertEquals(-0.1274, TrainData.round(errorGradient));
+        assertEquals(-0.1274, Trainer.round(errorGradient));
     }
 
     @Test
@@ -58,6 +55,6 @@ public class NeuronTest {
 
         double errorGradient = neuron.computeErrorGradientHiddenLayer();
 
-        assertEquals(0.0381, TrainData.round(errorGradient));
+        assertEquals(0.0381, Trainer.round(errorGradient));
     }
 }

@@ -39,10 +39,10 @@ public class Connection {
     public void adjustWeight() {
         double deltaWeight = start.getLearningRate() * start.getLastOutput() * end.getLastErrorGradient();
 
-        System.out.println("delta weight: " + deltaWeight);
-        System.out.println("lr: " + start.getLearningRate());
-        System.out.println("lo: " + start.getLastOutput());
-        System.out.println("leg: " + end.getLastErrorGradient());
+        //System.out.println("delta weight: " + deltaWeight);
+        //System.out.println("lr: " + start.getLearningRate());
+        //System.out.println("lo: " + start.getLastOutput());
+        //System.out.println("leg: " + end.getLastErrorGradient());
         weight += deltaWeight;
     }
 }

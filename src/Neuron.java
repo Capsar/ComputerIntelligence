@@ -9,6 +9,7 @@ public class Neuron {
     private double treshold;
     private double learningRate;
     private double lastOutput;
+    private double lastError;
     private double lastErrorGradient;
 
     public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, double learningRate) {
@@ -29,6 +30,10 @@ public class Neuron {
 
     public double getLastOutput() {
         return lastOutput;
+    }
+
+    public double getLastError() {
+        return lastError;
     }
 
     public double getLastErrorGradient() {
@@ -63,6 +68,11 @@ public class Neuron {
         outputs.add(connection);
     }
 
+    /**
+     * Computes the output of the neuron given a list of inputs.
+     * @param inputValues list of inputs
+     * @return the output of the neuron
+     */
     public double computeOutput(double[] inputValues) {
         double sum = 0;
 
@@ -78,14 +88,27 @@ public class Neuron {
         return output;
     }
 
+    /**
+     * Computes the error between the output and the desired value.
+     * @param inputValues list of inputs that will be used to calculate the output
+     * @param desired the desired output of the neuron
+     * @return the error for the output
+     */
     public double computeError(double[] inputValues, double desired) {
         double result = computeOutput(inputValues);
         double error = desired - result;
+
+        lastError = error;
 
         return error;
 
     }
 
+    /**
+     * Computes the error gradient for a neuron that is in the output layer.
+     * @param desired the desired output of the neuron
+     * @return the error gradient of the neuron
+     */
     public double computeErrorGradientOutputLayer(double desired) {
         double[] inputValues = new double[inputs.size()];
 
@@ -96,18 +119,32 @@ public class Neuron {
         double errorGradient = lastOutput * (1 - lastOutput) * computeError(inputValues, desired);
         lastErrorGradient = errorGradient;
 
-        System.out.println("error gradient output layer: " + errorGradient);
+        return errorGradient;
+    }
+
+    /**
+     * Computes the error gradient for a neuron that is in the hidden layer.
+     * @return the error gradient of the neuron
+     */
+    public double computeErrorGradientHiddenLayer(){
+        double nextLayer = 0;
+
+        for (int i = 0; i < outputs.size(); i++) {
+            nextLayer+= outputs.get(i).getEnd().getLastErrorGradient() * outputs.get(i).getWeight();
+        }
+
+        double errorGradient = lastOutput * (1 - lastOutput) * nextLayer;
+
+        lastErrorGradient = errorGradient;
 
         return errorGradient;
     }
 
-    public double computeErrorGradientHiddenLayer(){
-        double errorGradient = lastOutput * (1 - lastOutput) * outputs.get(0).getEnd().getLastErrorGradient() * outputs.get(0).getWeight();
-
-        lastErrorGradient = errorGradient;
-
-        System.out.println("error gradient hidden layer: " + errorGradient);
-
-        return errorGradient;
+    /**
+     * Update the treshold of the neuron using the error gradient.
+     */
+    public void updateTreshold() {
+        double deltaTreshold = learningRate * -1 * lastErrorGradient;
+        treshold+= deltaTreshold;
     }
 }

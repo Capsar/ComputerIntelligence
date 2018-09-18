@@ -177,7 +177,15 @@ public class NeuralNetwork {
         return finalResults;
     }
 
-    public void trainNetwork(double[] input, double[] desired) {
+    /**
+     * Trains the neuroal network by first computing the output from a set of inputs and then updating the weights and tresholds.
+     * @param input the inputs for the network
+     * @param desired the desired outputs of the network
+     * @return the mean squared error
+     */
+    public double trainNetwork(double[] input, double[] desired) {
+        double meanSquaredError = 0;
+
         this.computeOutput(input);
 
         for (int i = 0; i < outputLayer.size(); i++) {
@@ -186,6 +194,9 @@ public class NeuralNetwork {
             for (int j = 0; j < outputLayer.get(i).getInputs().size(); j++) {
                 outputLayer.get(i).getInputs().get(j).adjustWeight();
             }
+
+            meanSquaredError += Math.pow(outputLayer.get(i).getLastError(), 2);
+            outputLayer.get(i).updateTreshold();
         }
 
         for (int i = 0; i < hiddenLayer.size(); i++) {
@@ -194,6 +205,10 @@ public class NeuralNetwork {
             for (int j = 0; j < hiddenLayer.get(i).getInputs().size(); j++) {
                 hiddenLayer.get(i).getInputs().get(j).adjustWeight();
             }
+
+            hiddenLayer.get(i).updateTreshold();
         }
+
+        return meanSquaredError;
     }
 }
