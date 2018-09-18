@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 /**
@@ -51,6 +53,9 @@ public class TrainData {
         return products;
     }
 
-
-
+    public static double round(double number) {
+        BigDecimal bigDecimal = new BigDecimal(number);
+        bigDecimal = bigDecimal.setScale(4, RoundingMode.HALF_UP);
+        return bigDecimal.doubleValue();
+    }
 }
