@@ -61,8 +61,6 @@ fabric.properties
 
 # Editor-based Rest Client
 .idea/httpRequests
-\.idea/misc\.xml
-
-\.idea/modules\.xml
+\.idea/
 
 ci-group-75\.iml
