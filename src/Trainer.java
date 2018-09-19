@@ -90,27 +90,31 @@ public class Trainer {
         return bigDecimal.doubleValue();
     }
 
-    public void trainNetwork() {
-        while (currentMSE > desiredMSE) {
-            currentMSE = neuralNetwork.trainNetwork(trainData.get(currentDataIndex).getInputs(), trainData.get(currentDataIndex).getDesiredOutputs());
-            double[] currentValues = neuralNetwork.computeOutput(trainData.get(currentDataIndex).getInputs());
+    public int trainNetwork() {
 
-            System.out.println("current data item: " + currentDataIndex);
-            System.out.println("current epoch: " + currentEpoch);
-            System.out.println("");
-            System.out.println("current input: " + outputToString(trainData.get(currentDataIndex).getInputs()));
-            System.out.println("current output: " + outputToString(currentValues));
-            System.out.println("current target: " + getTarget(currentValues));
-            System.out.println("");
-            System.out.println("current mse: " + currentMSE);
+        int errorsPerEpoch = 0;
+        int finalErrors = 0;
+
+        while (currentMSE > desiredMSE) {
+            double[] inputs = trainData.get(currentDataIndex).getInputs();
+            double[] desiredOutputs = trainData.get(currentDataIndex).getDesiredOutputs();
+            currentMSE = neuralNetwork.trainNetwork(inputs, desiredOutputs);
+            double[] currentOutputs = neuralNetwork.computeOutput(inputs);
+            int currentTarget = getTarget(currentOutputs);
+            int desiredTarget = getTarget(desiredOutputs);
+            if(currentTarget != desiredTarget) {
+                errorsPerEpoch++;
+            }
             currentDataIndex++;
 
             if (currentDataIndex + 1 > trainData.size()) {
                 currentEpoch++;
                 currentDataIndex = 0;
+                finalErrors = errorsPerEpoch;
+                errorsPerEpoch = 0;
             }
         }
-        System.out.println("training finished, mse: " + currentMSE);
+        return finalErrors;
     }
 
     public int getTarget(double[] outputs) {
