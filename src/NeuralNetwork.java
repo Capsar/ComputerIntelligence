@@ -4,6 +4,10 @@ import java.util.ArrayList;
  * Created by Sam van Berkel on 12/09/2018.
  */
 public class NeuralNetwork {
+    private final int inputLayerSize;
+    private final int hiddenLayerSize;
+    private final int outputLayerSize;
+    private final double learningRate;
     ArrayList<Neuron> inputLayer;
     ArrayList<Neuron> hiddenLayer;
     ArrayList<Neuron> outputLayer;
@@ -27,6 +31,11 @@ public class NeuralNetwork {
      * @param outputLayerSize the amount of neurons in the output layer
      */
     public NeuralNetwork(int inputLayerSize, int hiddenLayerSize, int outputLayerSize, double learningRate) {
+        this.inputLayerSize = inputLayerSize;
+        this.hiddenLayerSize = hiddenLayerSize;
+        this.outputLayerSize = outputLayerSize;
+        this.learningRate = learningRate;
+
         // Initialize the arrays for the neurons
         inputLayer = new ArrayList<Neuron>();
         hiddenLayer = new ArrayList<Neuron>();
@@ -183,9 +192,7 @@ public class NeuralNetwork {
      * @param desired the desired outputs of the network
      * @return the mean squared error
      */
-    public double trainNetwork(double[] input, double[] desired) {
-        double meanSquaredError = 0;
-
+    public void trainNetwork(double[] input, double[] desired) {
         this.computeOutput(input);
 
         for (int i = 0; i < outputLayer.size(); i++) {
@@ -195,7 +202,6 @@ public class NeuralNetwork {
                 outputLayer.get(i).getInputs().get(j).adjustWeight();
             }
 
-            meanSquaredError += Math.pow(outputLayer.get(i).getLastError(), 2);
             outputLayer.get(i).updateTreshold();
         }
 
@@ -208,7 +214,31 @@ public class NeuralNetwork {
 
             hiddenLayer.get(i).updateTreshold();
         }
+    }
 
+    public double calculateMSE(double[] input, double[] desired) {
+        double meanSquaredError = 0;
+        this.computeOutput(input);
+        for (int i = 0; i < outputLayer.size(); i++) {
+            outputLayer.get(i).computeErrorGradientOutputLayer(desired[i]);
+            meanSquaredError += Math.pow(outputLayer.get(i).getLastError(), 2);
+        }
         return meanSquaredError;
+    }
+
+    public int getInputLayerSize() {
+        return inputLayerSize;
+    }
+
+    public int getHiddenLayerSize() {
+        return hiddenLayerSize;
+    }
+
+    public int getOutputLayerSize() {
+        return outputLayerSize;
+    }
+
+    public double getLearningRate() {
+        return learningRate;
     }
 }
