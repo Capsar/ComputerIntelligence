@@ -6,10 +6,10 @@ public class Connection {
     private Neuron end;
     private double weight;
 
-    public Connection(Neuron start, Neuron end) {
+    public Connection(Neuron start, Neuron end, double minInitialWeight, double maxInitialWeight) {
         this.start = start;
         this.end = end;
-        this.weight = Math.random();
+        this.weight = minInitialWeight + Math.random() * (maxInitialWeight - minInitialWeight);
     }
 
     public Neuron getStart() {

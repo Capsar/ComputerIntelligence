@@ -12,10 +12,10 @@ public class Neuron {
     private double lastError;
     private double lastErrorGradient;
 
-    public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, double learningRate) {
+    public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, double learningRate, double minInitialTreshold, double maxInitialTreshold) {
         this.inputs = inputs;
         this.outputs = outputs;
-        this.treshold = Math.random();
+        this.treshold = minInitialTreshold + Math.random() * (maxInitialTreshold - minInitialTreshold);
         this.learningRate = learningRate;
         lastOutput = 0;
     }

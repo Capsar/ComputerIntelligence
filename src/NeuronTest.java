@@ -12,7 +12,7 @@ public class NeuronTest {
 
     @BeforeEach
     public void setUp() {
-        neuralNetwork = new NeuralNetwork(2, 2, 1, 0.1);
+        neuralNetwork = new NeuralNetwork(2, 2, 1, 0.1, -0.5, 0.5, -0.5, 0.5);
 
         neuralNetwork.setWeightsInputHidden(new double[]{0.5, 0.9, 0.4, 1.0});
         neuralNetwork.setWeightsHiddenOutput(new double[]{-1.2, 1.1});
