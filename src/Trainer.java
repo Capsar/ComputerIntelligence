@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 /**
  * Class that trains a neural network
@@ -138,43 +139,42 @@ public class Trainer {
 
 
     public void trainKFoldNetwork() {
-        for (int test = 0; test < kFold; test++) {
-            for (int validation = 0; validation < kFold; validation++) {
-                if (test == validation)
-                    continue;
-
-                double lastMSE = Double.MAX_VALUE;
-                double currentMSE = Double.MIN_VALUE;
-                //Check whether the error is increasing, if that is the case minimum has been reached.
-                while (lastMSE >= currentMSE) {
-                    //compute error with the validation set
-                    lastMSE = computeMSE(validation);
-
-                    //Train with the trainingSet
-                    for (int i = 0; i < trainData.size(); i++) {
-                        if (i == validation || i == test)
-                            continue;
-
-                        for (TrainTarget tt : trainData.get(i).getTrainTargets()) {
-                            double[] inputs = tt.getInputs();
-                            double[] desiredOutputs = tt.getDesiredOutputs();
-                            neuralNetwork.trainNetwork(inputs, desiredOutputs);
-                        }
-                    }
-                    //compute error with the validation set
-                    currentMSE = computeMSE(validation);
-
-                }
-
-                //finished training with validation set, now check number of incorrect classifications with test set.
-                float[] check = checkKFoldNetwork(validation);
-                System.out.println("At t=" + test + " v=" + validation + " Validation Errors: " + check[0] + " / " + check[1] + "%");
-                float[] checkTest = checkKFoldNetwork(test);
-                this.networkResults.add(new NetworkResult(this.neuralNetwork, checkTest[1]));
-                System.out.println("Test Errors: " + checkTest[0] + " / " + checkTest[1]);
-                resetNeuralNetwork();
-                System.out.println("");
+        for (int validation = 0; validation < kFold; validation++) {
+            int test = validation+1;
+            if(test >= kFold) {
+                test = 0;
             }
+            double lastMSE = Double.MAX_VALUE;
+            double currentMSE = Double.MIN_VALUE;
+            //Check whether the error is increasing, if that is the case minimum has been reached.
+            while (currentMSE <= lastMSE) {
+                //compute error with the validation set
+                lastMSE = computeMSE(validation);
+
+                //Train with the trainingSet
+                for (int i = 0; i < trainData.size(); i++) {
+                    if (i == validation || i == test)
+                        continue;
+
+                    for (TrainTarget tt : trainData.get(i).getTrainTargets()) {
+                        double[] inputs = tt.getInputs();
+                        double[] desiredOutputs = tt.getDesiredOutputs();
+                        neuralNetwork.trainNetwork(inputs, desiredOutputs);
+                    }
+                }
+                //compute error with the validation set
+                currentMSE = computeMSE(validation);
+
+            }
+
+            //finished training with validation set, now check number of incorrect classifications with test set.
+            float[] checkValidation = checkKFoldNetwork(validation);
+            float[] checkTest = checkKFoldNetwork(test);
+            System.out.println("At t=" + test + " v=" + validation + " Validation Errors: " + checkValidation[0] + " / " + checkValidation[1] + "%");
+            this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest));
+            System.out.println("Test Errors: " + checkTest[0] + " / " + checkTest[1] + "%");
+            resetNeuralNetwork();
+            System.out.println("");
         }
     }
 

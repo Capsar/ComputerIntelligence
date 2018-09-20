@@ -7,8 +7,9 @@ public class Main {
      */
     public static void main(String[] args) {
 
-            Trainer trainer = new Trainer(new NeuralNetwork(10, 18, 7, 0.1), Trainer.loadData("src/files/features.txt", "src/files/targets.txt"), 5);
-            trainer.trainKFoldNetwork();
+
+        Trainer trainer = new Trainer(new NeuralNetwork(10, 18, 7, 0.1), Trainer.loadData("src/files/features.txt", "src/files/targets.txt"), 6);
+        trainer.trainKFoldNetwork();
 //        trainer.trainNetwork(100);
 //        System.out.println(trainer.checkNetwork());
 
