@@ -30,11 +30,21 @@ public class TrainerTest {
         trainData.add(new TrainTarget(new double[] {1, 0}, new double[]{1}));
         trainData.add(new TrainTarget(new double[] {0, 0}, new double[]{0}));
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(2, 2, 1, 0.1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(2, 2, 1, 0.1, -0.5, 0.5, -0.5, 0.5);
 
         Trainer trainer = new Trainer(neuralNetwork, trainData, 2);
 
         trainer.trainNetwork(100);
+    }
+
+    @Test
+    public void divideLearnRateTasksTest() {
+        double[][] tasks = Trainer.divideLearningRateTasks(8, 0.1, 1, 0.1);
+
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.println(tasks[i][0]);
+            System.out.println(tasks[i][1]);
+        }
     }
 
 

@@ -8,9 +8,13 @@ public class NeuralNetwork {
     private final int hiddenLayerSize;
     private final int outputLayerSize;
     private final double learningRate;
-    ArrayList<Neuron> inputLayer;
-    ArrayList<Neuron> hiddenLayer;
-    ArrayList<Neuron> outputLayer;
+    private final double minInitialWeight;
+    private final double maxInitialWeight;
+    private final double minInitialTreshold;
+    private final double maxInitialTreshold;
+    private ArrayList<Neuron> inputLayer;
+    private ArrayList<Neuron> hiddenLayer;
+    private ArrayList<Neuron> outputLayer;
 
     public ArrayList<Neuron> getInputLayer() {
         return inputLayer;
@@ -30,11 +34,15 @@ public class NeuralNetwork {
      * @param hiddenLayerSize the amount of neurons in the hidden layer
      * @param outputLayerSize the amount of neurons in the output layer
      */
-    public NeuralNetwork(int inputLayerSize, int hiddenLayerSize, int outputLayerSize, double learningRate) {
+    public NeuralNetwork(int inputLayerSize, int hiddenLayerSize, int outputLayerSize, double learningRate, double minInitialWeight, double maxInitialWeight, double minInitialTreshold, double maxInitialTreshold) {
         this.inputLayerSize = inputLayerSize;
         this.hiddenLayerSize = hiddenLayerSize;
         this.outputLayerSize = outputLayerSize;
         this.learningRate = learningRate;
+        this.minInitialWeight = minInitialWeight;
+        this.maxInitialWeight = maxInitialWeight;
+        this.minInitialTreshold = minInitialTreshold;
+        this.maxInitialTreshold = maxInitialTreshold;
 
         // Initialize the arrays for the neurons
         inputLayer = new ArrayList<Neuron>();
@@ -44,19 +52,19 @@ public class NeuralNetwork {
 
         // Create the neurons in the input layer (without connections)
         for (int i = 0; i < inputLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate);
+            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate, minInitialTreshold, maxInitialTreshold);
             inputLayer.add(neuron);
         }
 
         // Create the neurons in the hidden layer (without connections)
         for (int i = 0; i < hiddenLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(),learningRate);
+            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(),learningRate, minInitialTreshold, maxInitialTreshold);
             hiddenLayer.add(neuron);
         }
 
         // Create the neurons in the output layer (without connections)
         for (int i = 0; i < outputLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate);
+            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate, minInitialTreshold, maxInitialTreshold);
             outputLayer.add(neuron);
         }
 
@@ -64,7 +72,7 @@ public class NeuralNetwork {
         for (Neuron currentNeuron : inputLayer) {
             for (Neuron destination : hiddenLayer) {
                 // Create a new connection between the input layer neuron and the hiddenlayer neuron and add it to both neurons
-                Connection connection = new Connection(currentNeuron, destination);
+                Connection connection = new Connection(currentNeuron, destination, minInitialWeight, maxInitialWeight);
 
                 currentNeuron.addOutput(connection);
                 destination.addInput(connection);
@@ -75,7 +83,7 @@ public class NeuralNetwork {
         // Create the connections between the hidden layer and the output layer
         for (Neuron currentNeuron : hiddenLayer) {
             for (Neuron destination : outputLayer) {
-                Connection connection = new Connection(currentNeuron, destination);
+                Connection connection = new Connection(currentNeuron, destination, minInitialWeight, maxInitialWeight);
 
                 currentNeuron.addOutput(connection);
                 destination.addInput(connection);
@@ -240,5 +248,21 @@ public class NeuralNetwork {
 
     public double getLearningRate() {
         return learningRate;
+    }
+
+    public double getMinInitialWeight() {
+        return minInitialWeight;
+    }
+
+    public double getMaxInitialWeight() {
+        return maxInitialWeight;
+    }
+
+    public double getMinInitialTreshold() {
+        return minInitialTreshold;
+    }
+
+    public double getMaxInitialTreshold() {
+        return maxInitialTreshold;
     }
 }

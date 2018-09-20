@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Class that trains a neural network
@@ -20,6 +22,7 @@ public class Trainer {
     private ArrayList<TrainData> trainData;
     private ArrayList<TrainTarget> trainingSet;
     private ArrayList<NetworkResult> networkResults;
+    private int currentMSE = Integer.MAX_VALUE;
 
     /**
      * Constructor for the trainer object.
@@ -36,6 +39,10 @@ public class Trainer {
         this.trainData = kFold(kFold, trainingSet);
         this.kFold = kFold;
         this.networkResults = new ArrayList<NetworkResult>();
+    }
+
+    public NeuralNetwork getNeuralNetwork() {
+        return neuralNetwork;
     }
 
     /**
@@ -140,8 +147,8 @@ public class Trainer {
 
     public void trainKFoldNetwork() {
         for (int validation = 0; validation < kFold; validation++) {
-            int test = validation+1;
-            if(test >= kFold) {
+            int test = validation + 1;
+            if (test >= kFold) {
                 test = 0;
             }
             double lastMSE = Double.MAX_VALUE;
@@ -210,8 +217,14 @@ public class Trainer {
         int hiddenSize = this.neuralNetwork.getHiddenLayerSize();
         int outputSize = this.neuralNetwork.getOutputLayerSize();
         double learningRate = this.neuralNetwork.getLearningRate();
-        this.neuralNetwork = new NeuralNetwork(inputSize, hiddenSize, outputSize, learningRate);
+        double minInitialWeight = this.neuralNetwork.getMinInitialWeight();
+        double maxInitialWeight = this.neuralNetwork.getMaxInitialWeight();
+        double minInitialTreshold = this.neuralNetwork.getMinInitialTreshold();
+        double maxInitialTreshold = this.neuralNetwork.getMaxInitialTreshold();
+
+        this.neuralNetwork = new NeuralNetwork(inputSize, hiddenSize, outputSize, learningRate, minInitialWeight, maxInitialWeight, minInitialTreshold, maxInitialTreshold);
     }
+
 
     public int getTarget(double[] outputs) {
         double currentMax = Double.MIN_VALUE;
@@ -237,9 +250,120 @@ public class Trainer {
         return result;
     }
 
+
     public static double round(double number) {
         BigDecimal bigDecimal = new BigDecimal(number);
         bigDecimal = bigDecimal.setScale(4, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
+    }
+
+    /**
+     * Finds the best parameters for a given amount of epochs using multi threading
+     *
+     * @param parameters
+     * @param amountOfEpochs
+     * @param amountOfThreads
+     * @throws Exception
+     */
+    public void findBestParametersMultiThreaded(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) throws Exception {
+        ArrayList<Future> results = new ArrayList<>();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(amountOfThreads);
+
+        for (int i = 0; i < amountOfThreads; i++) {
+            results.add(executorService.submit(new FindBestParameterThread(parameters, neuralNetwork, amountOfEpochs, 6)));
+        }
+    }
+
+    /**
+     * Method that divides the learning rates over the given amount of threads
+     *
+     * @param amountOfThreads
+     * @param minLearningRate
+     * @param maxLearningRate
+     * @param stepSizeLearningRate
+     * @return
+     * @throws Exception
+     */
+    public static double[][] divideLearningRateTasks(int amountOfThreads, double minLearningRate, double maxLearningRate, double stepSizeLearningRate) {
+        double amountOfTasksDouble = ((maxLearningRate - minLearningRate) / stepSizeLearningRate);
+        int amountOfTasks = 0;
+
+        amountOfTasks = Math.round(amountOfTasks);
+
+        final int itemsPerThread = (amountOfTasks / (amountOfThreads));
+        final int remainingItems = (amountOfTasks % (amountOfThreads));
+
+        double[][] tasks = new double[amountOfThreads][2];
+
+        double currentNumber = minLearningRate;
+
+        for (int i = 0; i < tasks.length - 1; i++) {
+            tasks[i][0] = currentNumber;
+            tasks[i][1] = currentNumber + itemsPerThread * stepSizeLearningRate;
+            currentNumber += stepSizeLearningRate;
+        }
+
+        tasks[tasks.length - 1][0] = currentNumber;
+        tasks[tasks.length - 1][1] = maxLearningRate;
+
+        return tasks;
+
+    }
+
+    /**
+     * Finds the best parameters for a given amount of epochs
+     *
+     * @param parameters
+     * @param amountOfEpochs
+     * @return
+     */
+    public ArrayList<TrainResult> findBestParameters(TrainParameters parameters, int amountOfEpochs) {
+        NeuralNetwork currentNetwork = neuralNetwork;
+
+        double currentMSE;
+
+        double lowestMSE = Double.MAX_VALUE;
+        double lowestMSELearningRate = 0;
+        int lowestMSEAmountOfNeurons = 0;
+
+        ArrayList<TrainResult> results = new ArrayList<>();
+
+        long startTime = System.currentTimeMillis();
+        for (double lr = parameters.getMinLearningRate(); lr <= parameters.getMaxLearningRate(); lr += parameters.getStepSizeLearningRate()) {
+            System.out.println("next learning rate");
+            for (int hn = parameters.getMinAmountOfHiddenNeurons(); hn <= parameters.getMaxAmountOfHiddenNeurons(); hn++) {
+                System.out.println("next hidden neuron");
+                for (double minw = parameters.getMinInitialWeightInterval()[0]; minw <= parameters.getMinInitialWeightInterval()[1]; minw += parameters.getStepSizeWeight()) {
+                    System.out.println("next min initial weight");
+                    for (double maxw = parameters.getMaxInitialWeightInterval()[0]; maxw <= parameters.getMaxInitialWeightInterval()[1]; maxw += parameters.getStepSizeWeight()) {
+                        System.out.println("next max initial weight");
+                        for (double mint = parameters.getMinInitialTresholdInterval()[0]; mint <= parameters.getMinInitialTresholdInterval()[1]; mint += parameters.getStepSizeWeight()) {
+                            for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
+                                neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
+                                //TODO: Implement the k-fold method.
+                                this.trainNetwork(amountOfEpochs);
+                                currentMSE = this.computeMSE(1);
+                                if (currentMSE < lowestMSE) {
+                                    lowestMSE = currentMSE;
+                                    lowestMSELearningRate = lr;
+                                    lowestMSEAmountOfNeurons = hn;
+                                }
+
+                                TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
+
+                                results.add(result);
+                                //System.out.println(result);
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("taken time: " + (endTime - startTime));
+
+        return results;
     }
 }
