@@ -1,3 +1,4 @@
+import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -167,9 +168,9 @@ public class Trainer {
         double[][] learningRateIntervals = divideLearningRateTasks(amountOfThreads, parameters.getMinLearningRate(), parameters.getMaxLearningRate(), parameters.getStepSizeLearningRate());
 
         for (int i = 0; i < amountOfThreads; i++) {
-            parameters.setMinLearningRate(learningRateIntervals[i][0]);
-            parameters.setMaxLearningRate(learningRateIntervals[i][1]);
-            resultFutures.add(executorService.submit(new FindBestParameterThread(parameters, neuralNetwork, trainData, amountOfEpochs)));
+            System.out.println(learningRateIntervals[i][0]);
+            System.out.println(learningRateIntervals[i][1]);
+            resultFutures.add(executorService.submit(new FindBestParameterThread(parameters, learningRateIntervals[i][0] ,learningRateIntervals[i][1], neuralNetwork, trainData, amountOfEpochs, i)));
         }
 
         boolean finished = false;
@@ -183,19 +184,94 @@ public class Trainer {
             }
         }
 
+        System.out.println("finished");
+
         ArrayList<TrainResult> results = new ArrayList<>();
+
+
+
+        try {
+            ArrayList<TrainResult> results1 = (ArrayList<TrainResult>) resultFutures.get(0).get();
+            ArrayList<TrainResult> results2 = (ArrayList<TrainResult>) resultFutures.get(1).get();
+            ArrayList<TrainResult> results3 = (ArrayList<TrainResult>) resultFutures.get(2).get();
+            ArrayList<TrainResult> results4 = (ArrayList<TrainResult>) resultFutures.get(3).get();
+            ArrayList<TrainResult> results5 = (ArrayList<TrainResult>) resultFutures.get(4).get();
+            ArrayList<TrainResult> results6 = (ArrayList<TrainResult>) resultFutures.get(5).get();
+            ArrayList<TrainResult> results7 = (ArrayList<TrainResult>) resultFutures.get(6).get();
+            ArrayList<TrainResult> results8 = (ArrayList<TrainResult>) resultFutures.get(7).get();
+
+            System.out.println("results 1:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results1.get(i).getLearningRate());
+            }
+
+            System.out.println("results 2:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results2.get(i).getLearningRate());
+            }
+
+            System.out.println("results 3:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results3.get(i).getLearningRate());
+            }
+
+            System.out.println("results 4:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results4.get(i).getLearningRate());
+            }
+
+            System.out.println("results 5:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results5.get(i).getLearningRate());
+            }
+
+            System.out.println("results 6:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results6.get(i).getLearningRate());
+            }
+
+            System.out.println("results 7:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results7.get(i).getLearningRate());
+            }
+
+            System.out.println("results 8:");
+            for (int i = 0; i < results1.size(); i++) {
+                System.out.println(results8.get(i).getLearningRate());
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
         for (int i = 0; i < resultFutures.size(); i++) {
             ArrayList<TrainResult> currentResult = null;
             try {
-                currentResult = (ArrayList<TrainResult>) resultFutures.get(i).get();
+                if (resultFutures.get(i).isDone()) {
+                    currentResult = (ArrayList<TrainResult>) resultFutures.get(i).get();
+                }
+
+                //for (int j = 0; j < currentResult.size(); j++) {
+                //    System.out.println("lr1: " + results.get(j).getLearningRate());
+                //}
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
+
+
             results.addAll(currentResult);
+            //for (int j = 0; j < currentResult.size(); j++) {
+            //    System.out.println("lr1: " + results.get(j).getLearningRate());
+            //}
         }
+
+        //for (int i = 0; i < results.size(); i++) {
+        //    System.out.println("lr: " + results.get(i).getLearningRate());
+        //}
 
         return results;
     }
@@ -211,23 +287,24 @@ public class Trainer {
      */
     public static double[][] divideLearningRateTasks(int amountOfThreads, double minLearningRate, double maxLearningRate, double stepSizeLearningRate) {
 
-        int amountOfTasks = (int) Math.round(((maxLearningRate - minLearningRate) / stepSizeLearningRate));
+        int amountOfTasks = (int) Math.round(((maxLearningRate - minLearningRate + stepSizeLearningRate) / stepSizeLearningRate));
 
         int itemsPerThread = amountOfTasks / amountOfThreads;
         int remainingItems = (amountOfTasks % (amountOfThreads));
+
 
         double[][] tasks = new double[amountOfThreads][2];
 
         double currentNumber = minLearningRate;
 
-        for (int i = 0; i <= remainingItems; i++) {
+        for (int i = 0; i < remainingItems; i++) {
             tasks[i][0] = currentNumber;
             tasks[i][1] = currentNumber + (itemsPerThread) * stepSizeLearningRate;
             currentNumber+= (itemsPerThread + 1) * stepSizeLearningRate;
             currentNumber = Math.round(currentNumber * 10) / 10.0;
         }
 
-        for (int i = remainingItems + 1; i < tasks.length - 1; i++) {
+        for (int i = remainingItems; i < tasks.length - 1; i++) {
             tasks[i][0] = currentNumber;
             tasks[i][1] = currentNumber + (itemsPerThread -1) * stepSizeLearningRate;
             currentNumber+= itemsPerThread * stepSizeLearningRate;
@@ -249,21 +326,20 @@ public class Trainer {
     public ArrayList<TrainResult> findBestParameters(TrainParameters parameters, int amountOfEpochs) {
         NeuralNetwork currentNetwork = neuralNetwork;
 
+        System.out.println("finding best parameters for: " + parameters.getMinLearningRate() + " to " + parameters.getMaxLearningRate());
+
         double currentMSE;
 
         double lowestMSE = Double.MAX_VALUE;
-        double lowestMSELearningRate = 0;
-        int lowestMSEAmountOfNeurons = 0;
+        TrainResult lowestMSEResult = null;
 
         ArrayList<TrainResult> results = new ArrayList<>();
 
-        long startTime = System.currentTimeMillis();
-        for (double lr = parameters.getMinLearningRate(); lr <= parameters.getMaxLearningRate(); lr+= parameters.getStepSizeLearningRate()) {
+        for (double lr = parameters.getMinLearningRate(); lr <= parameters.getMaxLearningRate(); lr+= Math.round(parameters.getStepSizeLearningRate() * 10.0) / 10.0) {
             for (int hn = parameters.getMinAmountOfHiddenNeurons(); hn <= parameters.getMaxAmountOfHiddenNeurons(); hn++) {
                 for (double minw = parameters.getMinInitialWeightInterval()[0]; minw <= parameters.getMinInitialWeightInterval()[1]; minw+= parameters.getStepSizeWeight()) {
                     for (double maxw = parameters.getMaxInitialWeightInterval()[0]; maxw <= parameters.getMaxInitialWeightInterval()[1]; maxw+= parameters.getStepSizeWeight()) {
                         if (maxw < minw) {
-                            System.out.println("skipped weight");
                             continue;
                         }
 
@@ -271,13 +347,13 @@ public class Trainer {
                             for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
                                 neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
                                 currentMSE = this.trainNetwork(amountOfEpochs);
-                                if (currentMSE < lowestMSE) {
-                                    lowestMSE = currentMSE;
-                                    lowestMSELearningRate = lr;
-                                    lowestMSEAmountOfNeurons = hn;
-                                }
 
                                 TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
+
+                                if (currentMSE < lowestMSE) {
+                                    lowestMSE = currentMSE;
+                                    lowestMSEResult = result;
+                                }
 
                                 results.add(result);
                             }
@@ -285,8 +361,6 @@ public class Trainer {
                     }
                 }
         }}
-        long endTime = System.currentTimeMillis();
-        System.out.println("taken time: " + (endTime - startTime));
 
         return results;
     }
@@ -299,12 +373,16 @@ public class Trainer {
 
             printWriter.println("lr, " + "hn, " + "minw, " + "maxw, " + "mint, " + "maxt, " + "ep, " + "mse, " + "err");
 
+            long startTime = System.currentTimeMillis();
+
             ArrayList<TrainResult> results = findBestParametersMultiThreaded(parameters, amountOfEpochs, amountOfThreads);
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("taken time: " + (endTime - startTime));
 
             for (TrainResult result : results) {
                 printWriter.println(result.toString());
             }
-            System.out.println("finished");
             printWriter.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

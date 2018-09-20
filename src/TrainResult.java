@@ -24,6 +24,10 @@ public class TrainResult {
         this.errors = errors;
     }
 
+    public double getLearningRate() {
+        return learningRate;
+    }
+
     @Override
     public String toString() {
         return learningRate +
