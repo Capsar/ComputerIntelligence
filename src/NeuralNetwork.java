@@ -8,18 +8,6 @@ public class NeuralNetwork {
     private ArrayList<Neuron> hiddenLayer;
     private ArrayList<Neuron> outputLayer;
 
-    public ArrayList<Neuron> getInputLayer() {
-        return inputLayer;
-    }
-
-    public ArrayList<Neuron> getHiddenLayer() {
-        return hiddenLayer;
-    }
-
-    public ArrayList<Neuron> getOutputLayer() {
-        return outputLayer;
-    }
-
     /**
      * Constructor for the neural network object.
      * @param inputLayerSize the amount of neurons in the input layer
@@ -72,6 +60,18 @@ public class NeuralNetwork {
                 destination.addInput(connection);
             }
         }
+    }
+
+    public ArrayList<Neuron> getInputLayer() {
+        return inputLayer;
+    }
+
+    public ArrayList<Neuron> getHiddenLayer() {
+        return hiddenLayer;
+    }
+
+    public ArrayList<Neuron> getOutputLayer() {
+        return outputLayer;
     }
 
     /**

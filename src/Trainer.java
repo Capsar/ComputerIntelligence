@@ -170,7 +170,17 @@ public class Trainer {
         for (int i = 0; i < amountOfThreads; i++) {
             System.out.println(learningRateIntervals[i][0]);
             System.out.println(learningRateIntervals[i][1]);
-            resultFutures.add(executorService.submit(new FindBestParameterThread(parameters, learningRateIntervals[i][0] ,learningRateIntervals[i][1], neuralNetwork, trainData, amountOfEpochs, i)));
+            resultFutures.add(executorService.submit(new FindBestParameterThread(
+                    new TrainParameters(parameters.getMinAmountOfHiddenNeurons(),
+                            parameters.getMaxAmountOfHiddenNeurons(),
+                            learningRateIntervals[i][0],
+                            learningRateIntervals[i][1],
+                            parameters.getStepSizeLearningRate(),
+                            parameters.getMinInitialWeightInterval(),
+                            parameters.getMaxInitialWeightInterval(),
+                            parameters.getMinInitialTresholdInterval(),
+                            parameters.getMaxInitialTreshldInterval(),
+                            parameters.getStepSizeWeight()), learningRateIntervals[i][0] ,learningRateIntervals[i][1], neuralNetwork, trainData, amountOfEpochs, i)));
         }
 
         boolean finished = false;
@@ -188,74 +198,12 @@ public class Trainer {
 
         ArrayList<TrainResult> results = new ArrayList<>();
 
-
-
-        try {
-            ArrayList<TrainResult> results1 = (ArrayList<TrainResult>) resultFutures.get(0).get();
-            ArrayList<TrainResult> results2 = (ArrayList<TrainResult>) resultFutures.get(1).get();
-            ArrayList<TrainResult> results3 = (ArrayList<TrainResult>) resultFutures.get(2).get();
-            ArrayList<TrainResult> results4 = (ArrayList<TrainResult>) resultFutures.get(3).get();
-            ArrayList<TrainResult> results5 = (ArrayList<TrainResult>) resultFutures.get(4).get();
-            ArrayList<TrainResult> results6 = (ArrayList<TrainResult>) resultFutures.get(5).get();
-            ArrayList<TrainResult> results7 = (ArrayList<TrainResult>) resultFutures.get(6).get();
-            ArrayList<TrainResult> results8 = (ArrayList<TrainResult>) resultFutures.get(7).get();
-
-            System.out.println("results 1:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results1.get(i).getLearningRate());
-            }
-
-            System.out.println("results 2:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results2.get(i).getLearningRate());
-            }
-
-            System.out.println("results 3:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results3.get(i).getLearningRate());
-            }
-
-            System.out.println("results 4:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results4.get(i).getLearningRate());
-            }
-
-            System.out.println("results 5:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results5.get(i).getLearningRate());
-            }
-
-            System.out.println("results 6:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results6.get(i).getLearningRate());
-            }
-
-            System.out.println("results 7:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results7.get(i).getLearningRate());
-            }
-
-            System.out.println("results 8:");
-            for (int i = 0; i < results1.size(); i++) {
-                System.out.println(results8.get(i).getLearningRate());
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-
         for (int i = 0; i < resultFutures.size(); i++) {
             ArrayList<TrainResult> currentResult = null;
             try {
                 if (resultFutures.get(i).isDone()) {
                     currentResult = (ArrayList<TrainResult>) resultFutures.get(i).get();
                 }
-
-                //for (int j = 0; j < currentResult.size(); j++) {
-                //    System.out.println("lr1: " + results.get(j).getLearningRate());
-                //}
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -264,14 +212,7 @@ public class Trainer {
 
 
             results.addAll(currentResult);
-            //for (int j = 0; j < currentResult.size(); j++) {
-            //    System.out.println("lr1: " + results.get(j).getLearningRate());
-            //}
         }
-
-        //for (int i = 0; i < results.size(); i++) {
-        //    System.out.println("lr: " + results.get(i).getLearningRate());
-        //}
 
         return results;
     }
