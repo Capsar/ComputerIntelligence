@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -157,16 +159,45 @@ public class Trainer {
      * @param amountOfThreads
      * @throws Exception
      */
-    public void findBestParametersMultiThreaded(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) throws Exception{
-
-
-        ArrayList<Future> results = new ArrayList<>();
+    public ArrayList<TrainResult> findBestParametersMultiThreaded(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) {
+        ArrayList<Future> resultFutures = new ArrayList<>();
 
         ExecutorService executorService = Executors.newFixedThreadPool(amountOfThreads);
 
+        double[][] learningRateIntervals = divideLearningRateTasks(amountOfThreads, parameters.getMinLearningRate(), parameters.getMaxLearningRate(), parameters.getStepSizeLearningRate());
+
         for (int i = 0; i < amountOfThreads; i++) {
-            results.add(executorService.submit(new FindBestParameterThread(parameters, neuralNetwork, amountOfEpochs)));
+            parameters.setMinLearningRate(learningRateIntervals[i][0]);
+            parameters.setMaxLearningRate(learningRateIntervals[i][1]);
+            resultFutures.add(executorService.submit(new FindBestParameterThread(parameters, neuralNetwork, trainData, amountOfEpochs)));
         }
+
+        boolean finished = false;
+
+        while(!finished) {
+            finished = true;
+            for (int i = 0; i < resultFutures.size(); i++) {
+                if (!resultFutures.get(i).isDone()) {
+                    finished = false;
+                }
+            }
+        }
+
+        ArrayList<TrainResult> results = new ArrayList<>();
+
+        for (int i = 0; i < resultFutures.size(); i++) {
+            ArrayList<TrainResult> currentResult = null;
+            try {
+                currentResult = (ArrayList<TrainResult>) resultFutures.get(i).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            results.addAll(currentResult);
+        }
+
+        return results;
     }
 
     /**
@@ -179,29 +210,34 @@ public class Trainer {
      * @throws Exception
      */
     public static double[][] divideLearningRateTasks(int amountOfThreads, double minLearningRate, double maxLearningRate, double stepSizeLearningRate) {
-        double amountOfTasksDouble = ((maxLearningRate - minLearningRate) / stepSizeLearningRate);
-        int amountOfTasks = 0;
 
-        amountOfTasks = Math.round(amountOfTasks);
+        int amountOfTasks = (int) Math.round(((maxLearningRate - minLearningRate) / stepSizeLearningRate));
 
-        final int itemsPerThread = (amountOfTasks / (amountOfThreads));
-        final int remainingItems = (amountOfTasks % (amountOfThreads));
+        int itemsPerThread = amountOfTasks / amountOfThreads;
+        int remainingItems = (amountOfTasks % (amountOfThreads));
 
         double[][] tasks = new double[amountOfThreads][2];
 
         double currentNumber = minLearningRate;
 
-        for (int i = 0; i < tasks.length - 1; i++) {
+        for (int i = 0; i <= remainingItems; i++) {
             tasks[i][0] = currentNumber;
-            tasks[i][1] = currentNumber + itemsPerThread * stepSizeLearningRate;
-            currentNumber+= stepSizeLearningRate;
+            tasks[i][1] = currentNumber + (itemsPerThread) * stepSizeLearningRate;
+            currentNumber+= (itemsPerThread + 1) * stepSizeLearningRate;
+            currentNumber = Math.round(currentNumber * 10) / 10.0;
+        }
+
+        for (int i = remainingItems + 1; i < tasks.length - 1; i++) {
+            tasks[i][0] = currentNumber;
+            tasks[i][1] = currentNumber + (itemsPerThread -1) * stepSizeLearningRate;
+            currentNumber+= itemsPerThread * stepSizeLearningRate;
+            currentNumber = Math.round(currentNumber * 10) / 10.0;
         }
 
         tasks[tasks.length - 1][0] = currentNumber;
         tasks[tasks.length - 1][1] = maxLearningRate;
 
         return tasks;
-
     }
 
     /**
@@ -223,13 +259,14 @@ public class Trainer {
 
         long startTime = System.currentTimeMillis();
         for (double lr = parameters.getMinLearningRate(); lr <= parameters.getMaxLearningRate(); lr+= parameters.getStepSizeLearningRate()) {
-            System.out.println("next learning rate");
             for (int hn = parameters.getMinAmountOfHiddenNeurons(); hn <= parameters.getMaxAmountOfHiddenNeurons(); hn++) {
-                System.out.println("next hidden neuron");
                 for (double minw = parameters.getMinInitialWeightInterval()[0]; minw <= parameters.getMinInitialWeightInterval()[1]; minw+= parameters.getStepSizeWeight()) {
-                    System.out.println("next min initial weight");
                     for (double maxw = parameters.getMaxInitialWeightInterval()[0]; maxw <= parameters.getMaxInitialWeightInterval()[1]; maxw+= parameters.getStepSizeWeight()) {
-                        System.out.println("next max initial weight");
+                        if (maxw < minw) {
+                            System.out.println("skipped weight");
+                            continue;
+                        }
+
                         for (double mint = parameters.getMinInitialTresholdInterval()[0]; mint <= parameters.getMinInitialTresholdInterval()[1]; mint+= parameters.getStepSizeWeight()) {
                             for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
                                 neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
@@ -243,8 +280,6 @@ public class Trainer {
                                 TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
 
                                 results.add(result);
-                                //System.out.println(result);
-
                             }
                         }
                     }
@@ -254,5 +289,25 @@ public class Trainer {
         System.out.println("taken time: " + (endTime - startTime));
 
         return results;
+    }
+
+    public void createParameterFile(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) {
+        File file = new File(amountOfEpochs+ "epochs.txt");
+
+        try {
+            PrintWriter printWriter = new PrintWriter(file);
+
+            printWriter.println("lr, " + "hn, " + "minw, " + "maxw, " + "mint, " + "maxt, " + "ep, " + "mse, " + "err");
+
+            ArrayList<TrainResult> results = findBestParametersMultiThreaded(parameters, amountOfEpochs, amountOfThreads);
+
+            for (TrainResult result : results) {
+                printWriter.println(result.toString());
+            }
+            System.out.println("finished");
+            printWriter.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
