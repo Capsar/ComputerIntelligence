@@ -32,9 +32,9 @@ public class TrainerTest {
 
         NeuralNetwork neuralNetwork = new NeuralNetwork(2, 2, 1, 0.1, -0.5, 0.5, -0.5, 0.5);
 
-        Trainer trainer = new Trainer(neuralNetwork, trainData, 0.001);
+        Trainer trainer = new Trainer(neuralNetwork, trainData, 2);
 
-        trainer.trainNetwork(20000);
+        trainer.trainNetwork(100);
     }
 
     @Test
