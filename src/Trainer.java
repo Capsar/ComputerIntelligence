@@ -19,25 +19,31 @@ import java.util.concurrent.Future;
  * Created by Sam van Berkel on 12/09/2018.
  */
 public class Trainer {
-    NeuralNetwork neuralNetwork;
-    int currentDataIndex;
-    int currentEpoch;
-    double currentMSE;
-    double desiredMSE;
-    ArrayList<TrainTarget> trainData;
+    private NeuralNetwork neuralNetwork;
+    private final int kFold;
+    private int currentDataIndex;
+    private int currentEpoch;
+    private ArrayList<TrainData> trainData;
+    private ArrayList<TrainTarget> trainingSet;
+    private ArrayList<NetworkResult> networkResults;
+    private double currentMSE;
+
 
     /**
-     * Constructor for the trainer object.
-     * @param neuralNetwork the neural network that will be trained
-     * @param desiredMSE the desired mean squared error that needs to be reached before the network stops training
+     * Constructor for the Trainer object.
+     * @param neuralNetwork
+     * @param trainingSet
+     * @param kFold
      */
-    public Trainer(NeuralNetwork neuralNetwork, ArrayList<TrainTarget> trainData, double desiredMSE) {
+    public Trainer(NeuralNetwork neuralNetwork, ArrayList<TrainTarget> trainingSet, int kFold) {
         this.neuralNetwork = neuralNetwork;
-        this.desiredMSE = desiredMSE;
         currentEpoch = 1;
         currentDataIndex = 0;
         currentMSE = Integer.MAX_VALUE;
-        this.trainData = trainData;
+        this.trainingSet = trainingSet;
+        this.trainData = kFold(kFold, trainingSet);
+        this.kFold = kFold;
+        this.networkResults = new ArrayList<NetworkResult>();
     }
 
     public NeuralNetwork getNeuralNetwork() {
@@ -96,6 +102,23 @@ public class Trainer {
         return trainData;
     }
 
+    public static ArrayList<TrainData> kFold(int k, ArrayList<TrainTarget> trainingSet) {
+        ArrayList<TrainData> trainingSets = new ArrayList<TrainData>();
+        int trainingSetSize = trainingSet.size();
+        int foldSize = trainingSetSize / k;
+        System.out.println("TrainingSetSize: " + trainingSetSize);
+        System.out.println("Partitioning trainingSet in " + k + " partitions with a size of " + foldSize);
+        for (int i = 0; i < k; i++) {
+            ArrayList<TrainTarget> targets = new ArrayList<TrainTarget>();
+            for (int j = i * foldSize; j < (i + 1) * foldSize; j++) {
+                targets.add(trainingSet.get(j));
+            }
+            trainingSets.add(new TrainData(targets));
+        }
+        return trainingSets;
+    }
+
+
     /**
      * Rounds a number to 4 decimal places.
      * @param number the number to be rounded
@@ -110,24 +133,116 @@ public class Trainer {
     /**
      * Train the current neural network.
      */
-    public double trainNetwork(int maxAmountOfEpochs) {
-        while (currentEpoch <= maxAmountOfEpochs) {
-            currentMSE = neuralNetwork.trainNetwork(trainData.get(currentDataIndex).getInputs(), trainData.get(currentDataIndex).getDesiredOutputs());
-            currentDataIndex++;
-
-            if (currentDataIndex + 1 > trainData.size()) {
-
-                currentEpoch++;
-                currentDataIndex = 0;
+    public void trainNetwork(int epochs) {
+        for (int epoch = 0; epoch < epochs; epoch++) {
+            for (currentDataIndex = 0; currentDataIndex < trainData.size(); currentDataIndex++) {
+                double[] inputs = trainingSet.get(currentDataIndex).getInputs();
+                double[] desiredOutputs = trainingSet.get(currentDataIndex).getDesiredOutputs();
+                neuralNetwork.trainNetwork(inputs, desiredOutputs);
             }
+            currentEpoch++;
+            currentDataIndex = 0;
         }
 
-        // Reset the values
-        currentEpoch = 0;
-        currentDataIndex = 0;
-
-        return currentMSE;
     }
+
+    public int checkNetwork() {
+        int incorrectClassifications = 0;
+        for (currentDataIndex = 0; currentDataIndex < trainingSet.size(); currentDataIndex++) {
+            double[] inputs = trainingSet.get(currentDataIndex).getInputs();
+            double[] desiredOutputs = trainingSet.get(currentDataIndex).getDesiredOutputs();
+            double[] currentOutputs = neuralNetwork.computeOutput(inputs);
+            int currentTarget = getTarget(currentOutputs);
+            int desiredTarget = getTarget(desiredOutputs);
+            if (currentTarget != desiredTarget) {
+                incorrectClassifications++;
+            }
+        }
+        return incorrectClassifications;
+    }
+
+
+    public void trainKFoldNetwork() {
+        for (int validation = 0; validation < kFold; validation++) {
+            int test = validation + 1;
+            if (test >= kFold) {
+                test = 0;
+            }
+            double lastMSE = Double.MAX_VALUE;
+            double currentMSE = Double.MIN_VALUE;
+            //Check whether the error is increasing, if that is the case minimum has been reached.
+            while (currentMSE <= lastMSE) {
+                //compute error with the validation set
+                lastMSE = computeMSE(validation);
+
+                //Train with the trainingSet
+                for (int i = 0; i < trainData.size(); i++) {
+                    if (i == validation || i == test)
+                        continue;
+
+                    for (TrainTarget tt : trainData.get(i).getTrainTargets()) {
+                        double[] inputs = tt.getInputs();
+                        double[] desiredOutputs = tt.getDesiredOutputs();
+                        neuralNetwork.trainNetwork(inputs, desiredOutputs);
+                    }
+                }
+                //compute error with the validation set
+                currentMSE = computeMSE(validation);
+
+            }
+
+            //finished training with validation set, now check number of incorrect classifications with test set.
+            float[] checkValidation = checkKFoldNetwork(validation);
+            float[] checkTest = checkKFoldNetwork(test);
+            System.out.println("At t=" + test + " v=" + validation + " Validation Errors: " + checkValidation[0] + " / " + checkValidation[1] + "%");
+            this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest));
+            System.out.println("Test Errors: " + checkTest[0] + " / " + checkTest[1] + "%");
+            resetNeuralNetwork();
+            System.out.println("");
+        }
+    }
+
+    public double computeMSE(int validation) {
+        double mse = 0;
+        for (TrainTarget tt : trainData.get(validation).getTrainTargets()) {
+            double[] inputs = tt.getInputs();
+            double[] desiredOutputs = tt.getDesiredOutputs();
+            mse += neuralNetwork.calculateMSE(inputs, desiredOutputs);
+        }
+        return mse;
+    }
+
+    public float[] checkKFoldNetwork(int test) {
+        float incorrectClassifications = 0;
+        ArrayList<TrainTarget> targets = trainData.get(test).getTrainTargets();
+        for (TrainTarget tt : targets) {
+            double[] inputs = tt.getInputs();
+            double[] desiredOutputs = tt.getDesiredOutputs();
+            double[] currentOutputs = neuralNetwork.computeOutput(inputs);
+            int currentTarget = getTarget(currentOutputs);
+            int desiredTarget = getTarget(desiredOutputs);
+            if (currentTarget != desiredTarget) {
+                incorrectClassifications++;
+            }
+        }
+        float percentage = incorrectClassifications / targets.size() * 100.0f;
+        return new float[]{incorrectClassifications, percentage};
+    }
+
+    private void resetNeuralNetwork() {
+        int inputSize = this.neuralNetwork.getInputLayerSize();
+        int hiddenSize = this.neuralNetwork.getHiddenLayerSize();
+        int outputSize = this.neuralNetwork.getOutputLayerSize();
+        double learningRate = this.neuralNetwork.getLearningRate();
+        double minInitialWeight = this.neuralNetwork.getMinInitialWeight();
+        double maxInitialWeight = this.neuralNetwork.getMaxInitialWeight();
+        double minInitialTreshold = this.neuralNetwork.getMinInitialTreshold();
+        double maxInitialTreshold = this.neuralNetwork.getMaxInitialTreshold();
+
+        this.neuralNetwork = new NeuralNetwork(inputSize, hiddenSize, outputSize, learningRate, minInitialWeight, maxInitialWeight, minInitialTreshold, maxInitialTreshold);
+    }
+
+
 
     public int getTarget(double[] outputs) {
         double currentMax = Double.MIN_VALUE;
@@ -180,7 +295,7 @@ public class Trainer {
                             parameters.getMaxInitialWeightInterval(),
                             parameters.getMinInitialTresholdInterval(),
                             parameters.getMaxInitialTreshldInterval(),
-                            parameters.getStepSizeWeight()), learningRateIntervals[i][0] ,learningRateIntervals[i][1], neuralNetwork, trainData, amountOfEpochs, i)));
+                            parameters.getStepSizeWeight()), neuralNetwork, loadData("src/features.txt", "src/targets.txt"), amountOfEpochs, i, kFold)));
         }
 
         boolean finished = false;
@@ -287,7 +402,8 @@ public class Trainer {
                         for (double mint = parameters.getMinInitialTresholdInterval()[0]; mint <= parameters.getMinInitialTresholdInterval()[1]; mint+= parameters.getStepSizeWeight()) {
                             for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
                                 neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
-                                currentMSE = this.trainNetwork(amountOfEpochs);
+                                this.trainNetwork(amountOfEpochs);
+                                currentMSE = this.computeMSE(1);
 
                                 TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
 
