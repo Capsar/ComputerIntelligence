@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 /**
+ * Class that represents a neural network
  * Created by Sam van Berkel on 12/09/2018.
  */
 public class NeuralNetwork {
@@ -89,6 +90,39 @@ public class NeuralNetwork {
 
     public ArrayList<Neuron> getOutputLayer() {
         return outputLayer;
+    }
+
+
+    public int getInputLayerSize() {
+        return inputLayerSize;
+    }
+
+    public int getHiddenLayerSize() {
+        return hiddenLayerSize;
+    }
+
+    public int getOutputLayerSize() {
+        return outputLayerSize;
+    }
+
+    public double getLearningRate() {
+        return learningRate;
+    }
+
+    public double getMinInitialWeight() {
+        return minInitialWeight;
+    }
+
+    public double getMaxInitialWeight() {
+        return maxInitialWeight;
+    }
+
+    public double getMinInitialTreshold() {
+        return minInitialTreshold;
+    }
+
+    public double getMaxInitialTreshold() {
+        return maxInitialTreshold;
     }
 
     /**
@@ -232,37 +266,5 @@ public class NeuralNetwork {
             meanSquaredError += Math.pow(outputLayer.get(i).getLastError(), 2);
         }
         return meanSquaredError;
-    }
-
-    public int getInputLayerSize() {
-        return inputLayerSize;
-    }
-
-    public int getHiddenLayerSize() {
-        return hiddenLayerSize;
-    }
-
-    public int getOutputLayerSize() {
-        return outputLayerSize;
-    }
-
-    public double getLearningRate() {
-        return learningRate;
-    }
-
-    public double getMinInitialWeight() {
-        return minInitialWeight;
-    }
-
-    public double getMaxInitialWeight() {
-        return maxInitialWeight;
-    }
-
-    public double getMinInitialTreshold() {
-        return minInitialTreshold;
-    }
-
-    public double getMaxInitialTreshold() {
-        return maxInitialTreshold;
     }
 }

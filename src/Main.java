@@ -7,9 +7,9 @@ public class Main {
      */
     public static void main(String[] args) {
         Trainer trainer = new Trainer(new NeuralNetwork(10, 27, 7, 0.1, -0.5, 0.5, -0.5, 0.5), Trainer.loadData("src/files/features.txt", "src/files/targets.txt"), 6);
-        trainer.trainKFoldNetwork();
+        //trainer.trainKFoldNetwork();
 
-        TrainParameters parameters = new TrainParameters(7, 20, 0.1, 1.0, 0.1, new double[]{-0.5, 0.5}, new double[]{-0.5, 0.5}, new double[]{-0.5, 0.5}, new double[]{-0.5, 0.5}, 0.5);
+        TrainParameters parameters = new TrainParameters(7, 10, 0.1, 1.0, 0.1, new double[]{0.0, 0.0}, new double[]{0.0, 0.0}, new double[]{0.0, 0.0}, new double[]{0.0, 0.0}, 1.0);
         trainer.createParameterFile(parameters, 2, 8);
-        }
     }
+}

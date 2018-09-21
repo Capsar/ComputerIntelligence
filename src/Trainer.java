@@ -1,11 +1,9 @@
-import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -162,7 +160,9 @@ public class Trainer {
     }
 
 
-    public void trainKFoldNetwork() {
+    public int trainKFoldNetwork() {
+        int amountOfEpochs = 1;
+
         for (int validation = 0; validation < kFold; validation++) {
             int test = validation + 1;
             if (test >= kFold) {
@@ -170,6 +170,9 @@ public class Trainer {
             }
             double lastMSE = Double.MAX_VALUE;
             double currentMSE = Double.MIN_VALUE;
+
+            amountOfEpochs = 1;
+
             //Check whether the error is increasing, if that is the case minimum has been reached.
             while (currentMSE <= lastMSE) {
                 //compute error with the validation set
@@ -189,17 +192,17 @@ public class Trainer {
                 //compute error with the validation set
                 currentMSE = computeMSE(validation);
 
+                amountOfEpochs++;
             }
 
             //finished training with validation set, now check number of incorrect classifications with test set.
             float[] checkValidation = checkKFoldNetwork(validation);
             float[] checkTest = checkKFoldNetwork(test);
-            System.out.println("At t=" + test + " v=" + validation + " Validation Errors: " + checkValidation[0] + " / " + checkValidation[1] + "%");
             this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest));
-            System.out.println("Test Errors: " + checkTest[0] + " / " + checkTest[1] + "%");
             resetNeuralNetwork();
-            System.out.println("");
         }
+
+        return amountOfEpochs;
     }
 
     public double computeMSE(int validation) {
@@ -270,12 +273,10 @@ public class Trainer {
 
     /**
      * Finds the best parameters for a given amount of epochs using multi threading
-     * @param parameters
-     * @param amountOfEpochs
-     * @param amountOfThreads
-     * @throws Exception
+     * @param parameters the parameters that will be tested
+     * @param amountOfThreads the amount of threads that will be used to calculate the results
      */
-    public ArrayList<TrainResult> findBestParametersMultiThreaded(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) {
+    public ArrayList<TrainResult> findBestParametersMultiThreaded(TrainParameters parameters, int amountOfThreads) {
         ArrayList<Future> resultFutures = new ArrayList<>();
 
         ExecutorService executorService = Executors.newFixedThreadPool(amountOfThreads);
@@ -295,7 +296,7 @@ public class Trainer {
                             parameters.getMaxInitialWeightInterval(),
                             parameters.getMinInitialTresholdInterval(),
                             parameters.getMaxInitialTreshldInterval(),
-                            parameters.getStepSizeWeight()), neuralNetwork, loadData("src/features.txt", "src/targets.txt"), amountOfEpochs, i, kFold)));
+                            parameters.getStepSizeWeight()), neuralNetwork, loadData("src/files/features.txt", "src/files/targets.txt"), i, kFold)));
         }
 
         boolean finished = false;
@@ -375,11 +376,10 @@ public class Trainer {
 
     /**
      * Finds the best parameters for a given amount of epochs
-     * @param parameters
-     * @param amountOfEpochs
-     * @return
+     * @param parameters the parameters that will be tested
+     * @return list of results with the given parameters
      */
-    public ArrayList<TrainResult> findBestParameters(TrainParameters parameters, int amountOfEpochs) {
+    public ArrayList<TrainResult> findBestParameters(TrainParameters parameters) {
         NeuralNetwork currentNetwork = neuralNetwork;
 
         System.out.println("finding best parameters for: " + parameters.getMinLearningRate() + " to " + parameters.getMaxLearningRate());
@@ -402,7 +402,7 @@ public class Trainer {
                         for (double mint = parameters.getMinInitialTresholdInterval()[0]; mint <= parameters.getMinInitialTresholdInterval()[1]; mint+= parameters.getStepSizeWeight()) {
                             for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
                                 neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
-                                this.trainNetwork(amountOfEpochs);
+                                int amountOfEpochs = this.trainKFoldNetwork();
                                 currentMSE = this.computeMSE(1);
 
                                 TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
@@ -419,11 +419,18 @@ public class Trainer {
                 }
         }}
 
+        System.out.println("best result: " + lowestMSEResult.toString());
+
         return results;
     }
 
-    public void createParameterFile(TrainParameters parameters, int amountOfEpochs, int amountOfThreads) {
-        File file = new File(amountOfEpochs+ "epochs.txt");
+    /**
+     * Create a file containing all the results from the given set of testing parameters.
+     * @param parameters the parameters that will be tested
+     * @param amountOfThreads the amount of threads that will be created to calculate the results
+     */
+    public void createParameterFile(TrainParameters parameters, int amountOfThreads) {
+        File file = new File("test.txt");
 
         try {
             PrintWriter printWriter = new PrintWriter(file);
@@ -432,7 +439,7 @@ public class Trainer {
 
             long startTime = System.currentTimeMillis();
 
-            ArrayList<TrainResult> results = findBestParametersMultiThreaded(parameters, amountOfEpochs, amountOfThreads);
+            ArrayList<TrainResult> results = findBestParametersMultiThreaded(parameters, amountOfThreads);
 
             long endTime = System.currentTimeMillis();
             System.out.println("taken time: " + (endTime - startTime));
