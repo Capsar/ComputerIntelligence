@@ -12,27 +12,24 @@ public class FindBestParameterThread implements Callable<ArrayList<TrainResult>>
     private int threadId;
     private double minLearnRate;
     private double maxLearnRate;
+    private int kFold;
 
-    public FindBestParameterThread(TrainParameters parameters, double minLearnRate, double maxLearnRate, NeuralNetwork neuralNetwork, ArrayList<TrainTarget> trainData, int amountOfEpochs, int threadId) {
+    public FindBestParameterThread(TrainParameters parameters, NeuralNetwork neuralNetwork, ArrayList<TrainTarget> trainData, int amountOfEpochs, int threadId, int kFold) {
         this.parameters = parameters;
         this.neuralNetwork = neuralNetwork;
         this.trainData = trainData;
         this.amountOfEpochs = amountOfEpochs;
-        this.threadId = threadId;
-        this.minLearnRate = minLearnRate;
-        this.maxLearnRate = maxLearnRate;
+        this.kFold = kFold;
     }
 
     @Override
     public ArrayList<TrainResult> call() throws Exception {
-        parameters.setMinLearningRate(minLearnRate);
-        parameters.setMaxLearningRate(maxLearnRate);
 
         System.out.println("Starting thread " + threadId + " with learning rates from: " + parameters.getMinLearningRate() + " to: " + parameters.getMaxLearningRate());
 
 
 
-        Trainer trainer = new Trainer(neuralNetwork, trainData, 0.1);
+        Trainer trainer = new Trainer(neuralNetwork, trainData, 5);
 
         long startTime = System.currentTimeMillis();
 

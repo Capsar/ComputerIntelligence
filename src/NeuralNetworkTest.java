@@ -50,8 +50,9 @@ public class NeuralNetworkTest {
 
     @Test
     public void trainNetworkTest() {
-        double meanSquaredError = neuralNetwork.trainNetwork(new double[]{1, 1}, new double[]{0});
+        neuralNetwork.trainNetwork(new double[]{1, 1}, new double[]{0});
 
+        double meanSquaredError = neuralNetwork.calculateMSE(new double[]{1, 1}, new double[]{0});
         assertEquals(0.5097, Trainer.round(neuralNetwork.getOutputLayer().get(0).getLastOutput()));
         assertEquals(0.5250, Trainer.round(neuralNetwork.getHiddenLayer().get(0).getLastOutput()));
         assertEquals(0.8808, Trainer.round(neuralNetwork.getHiddenLayer().get(1).getLastOutput()));
