@@ -45,7 +45,7 @@ public class FindBestParameterThread implements Callable<ArrayList<TrainResult>>
 
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
-        System.out.println("Thread " + threadId + "has finished in " + (totalTime / 1000) + " seconds");
+        System.out.println("Thread " + threadId + " has finished in " + (totalTime / 1000) + " seconds");
 
         return result;
     }

@@ -1,19 +1,22 @@
 public class NetworkResult {
 
+    private float percentageVali;
+    private float percentageTest;
     private NeuralNetwork network;
-    private float percentageIncorrect;
     private float[] checkValidation;
     private float[] checkTest;
 
     public NetworkResult(NeuralNetwork network, float percentageIncorrect) {
         this.network = network;
-        this.percentageIncorrect = percentageIncorrect;
     }
 
     public NetworkResult(NeuralNetwork network, float[] checkValidation, float[] checkTest) {
         this.network = network;
         this.checkValidation = checkValidation;
         this.checkTest = checkTest;
+        this.percentageVali = checkValidation[1];
+        this.percentageTest = checkTest[1];
+
     }
 
     public float[] getCheckValidation() {
@@ -24,11 +27,15 @@ public class NetworkResult {
         return checkTest;
     }
 
-    public float getPercentageIncorrect() {
-        return percentageIncorrect;
-    }
-
     public NeuralNetwork getNetwork() {
         return network;
+    }
+
+    public float getPercentageVali() {
+        return percentageVali;
+    }
+
+    public float getPercentageTest() {
+        return percentageTest;
     }
 }
