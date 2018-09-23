@@ -12,7 +12,7 @@ public class TrainerTest {
 
     @Test
     public void loadDataTest() {
-        ArrayList<TrainTarget> products = Trainer.loadData("src/files/features.txt", "src/files/targets.txt");
+        ArrayList<TrainTarget> products = Trainer.loadTrainData("src/files/features.txt", "src/files/targets.txt");
         assertEquals(products.size(), 7854);
 
         assertEquals(products.get(2).getDesiredOutputs()[1], 1.0);
@@ -35,6 +35,12 @@ public class TrainerTest {
         Trainer trainer = new Trainer(neuralNetwork, trainData, 2);
 
         trainer.trainNetwork(100);
+    }
+
+    @Test
+    public void convertOutputsToClassTest() {
+        assertEquals(3, Trainer.convertOutputsToClass(new double[]{0.1212, 0.3410, 0.9233, 0.5923, 0.5292, 0.1239, 0.7342}));
+
     }
 
     @Test

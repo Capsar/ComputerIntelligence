@@ -54,7 +54,7 @@ public class Trainer {
      * @param targetsUrl the url for the location of the targets file
      * @return list of generated products
      */
-    public static ArrayList<TrainTarget> loadData(String featuresUrl, String targetsUrl) {
+    public static ArrayList<TrainTarget> loadTrainData(String featuresUrl, String targetsUrl) {
         ArrayList<TrainTarget> trainData = new ArrayList<>();
 
         try {
@@ -100,6 +100,36 @@ public class Trainer {
         return trainData;
     }
 
+    public static ArrayList<double[]> loadInputData(String fileUrl) {
+        ArrayList<double[]> inputData = new ArrayList<>();
+
+        try {
+            FileReader fr = new FileReader(fileUrl);
+
+            BufferedReader br = new BufferedReader(fr);
+
+            while(fr.ready()) {
+                // Get the current line of 10 features and convert them to an array of doubles
+                String currentLine = br.readLine();
+                String[] featureStrings = currentLine.split(",");
+                double[] features = new double[featureStrings.length];
+
+                for (int i = 0; i < features.length; i++) {
+                    features[i] = Double.parseDouble(featureStrings[i]);
+                }
+
+                // Create a product with the current features and targets and add it to the list
+                inputData.add(features);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return inputData;
+    }
+
     public static ArrayList<TrainData> kFold(int k, ArrayList<TrainTarget> trainingSet) {
         ArrayList<TrainData> trainingSets = new ArrayList<TrainData>();
         int trainingSetSize = trainingSet.size();
@@ -140,6 +170,7 @@ public class Trainer {
             }
             currentEpoch++;
             currentDataIndex = 0;
+            System.out.println(currentEpoch);
         }
 
     }
@@ -150,8 +181,8 @@ public class Trainer {
             double[] inputs = trainingSet.get(currentDataIndex).getInputs();
             double[] desiredOutputs = trainingSet.get(currentDataIndex).getDesiredOutputs();
             double[] currentOutputs = neuralNetwork.computeOutput(inputs);
-            int currentTarget = getTarget(currentOutputs);
-            int desiredTarget = getTarget(desiredOutputs);
+            int currentTarget = convertOutputsToClass(currentOutputs);
+            int desiredTarget = convertOutputsToClass(desiredOutputs);
             if (currentTarget != desiredTarget) {
                 incorrectClassifications++;
             }
@@ -177,6 +208,8 @@ public class Trainer {
             while (currentMSE <= lastMSE) {
                 //compute error with the validation set
                 lastMSE = computeMSE(validation);
+
+                System.out.println(lastMSE);
 
                 //Train with the trainingSet
                 for (int i = 0; i < trainData.size(); i++) {
@@ -222,8 +255,8 @@ public class Trainer {
             double[] inputs = tt.getInputs();
             double[] desiredOutputs = tt.getDesiredOutputs();
             double[] currentOutputs = neuralNetwork.computeOutput(inputs);
-            int currentTarget = getTarget(currentOutputs);
-            int desiredTarget = getTarget(desiredOutputs);
+            int currentTarget = convertOutputsToClass(currentOutputs);
+            int desiredTarget = convertOutputsToClass(desiredOutputs);
             if (currentTarget != desiredTarget) {
                 incorrectClassifications++;
             }
@@ -246,8 +279,12 @@ public class Trainer {
     }
 
 
-
-    public int getTarget(double[] outputs) {
+    /**
+     * Converts a list of outputs to a chosen class
+     * @param outputs
+     * @return
+     */
+    public static int convertOutputsToClass(double[] outputs) {
         double currentMax = Double.MIN_VALUE;
         int currentTarget = 0;
 
@@ -296,7 +333,7 @@ public class Trainer {
                             parameters.getMaxInitialWeightInterval(),
                             parameters.getMinInitialTresholdInterval(),
                             parameters.getMaxInitialTreshldInterval(),
-                            parameters.getStepSizeWeight()), neuralNetwork, loadData("src/files/features.txt", "src/files/targets.txt"), i, kFold)));
+                            parameters.getStepSizeWeight()), neuralNetwork, loadTrainData("src/files/features.txt", "src/files/targets.txt"), i, kFold)));
         }
 
         boolean finished = false;
@@ -402,10 +439,13 @@ public class Trainer {
                         for (double mint = parameters.getMinInitialTresholdInterval()[0]; mint <= parameters.getMinInitialTresholdInterval()[1]; mint+= parameters.getStepSizeWeight()) {
                             for (double maxt = parameters.getMaxInitialTreshldInterval()[0]; maxt <= parameters.getMaxInitialTreshldInterval()[1]; maxt += parameters.getStepSizeWeight()) {
                                 neuralNetwork = new NeuralNetwork(currentNetwork.getInputLayer().size(), hn, currentNetwork.getOutputLayer().size(), lr, minw, maxw, mint, maxt);
+                                System.out.println("start");
                                 int amountOfEpochs = this.trainKFoldNetwork();
+                                System.out.println(amountOfEpochs);
                                 currentMSE = this.computeMSE(1);
 
                                 TrainResult result = new TrainResult(hn, lr, minw, maxw, mint, maxt, amountOfEpochs, currentMSE, 0);
+                                System.out.println("newResult");
 
                                 if (currentMSE < lowestMSE) {
                                     lowestMSE = currentMSE;
@@ -422,6 +462,41 @@ public class Trainer {
         System.out.println("best result: " + lowestMSEResult.toString());
 
         return results;
+    }
+
+    /**
+     * Creates a file called classes.txt containing the matching classes for the given input file
+     * @param inputFileUrl the url of the file containing the features
+     */
+    public void createOutputFile(String inputFileUrl, String outputFileName) {
+        File outputFile = new File(outputFileName);
+
+        ArrayList<double[]> inputs = loadInputData(inputFileUrl);
+
+        try {
+            PrintWriter printWriter = new PrintWriter(outputFile);
+
+            String outputString = "";
+
+            for (double[] input : inputs) {
+                int computedClass = convertOutputsToClass(neuralNetwork.computeOutput(input));
+
+                for (double number : neuralNetwork.computeOutput(input)) {
+                    System.out.print(number + ", ");
+
+                }
+                System.out.println("nextinput");
+
+                outputString +=String.valueOf(computedClass) + ", ";
+            }
+
+            outputString.substring(0, outputString.length() -1);
+            printWriter.print(outputString);
+            printWriter.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
