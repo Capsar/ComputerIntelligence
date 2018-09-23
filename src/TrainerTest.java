@@ -12,7 +12,7 @@ public class TrainerTest {
 
     @Test
     public void loadDataTest() {
-        ArrayList<TrainTarget> products = Trainer.loadData("src/files/features.txt", "src/files/targets.txt");
+        ArrayList<TrainTarget> products = Trainer.loadTrainData("src/files/features.txt", "src/files/targets.txt");
         assertEquals(products.size(), 7854);
 
         assertEquals(products.get(2).getDesiredOutputs()[1], 1.0);
@@ -38,12 +38,26 @@ public class TrainerTest {
     }
 
     @Test
+    public void convertOutputsToClassTest() {
+        assertEquals(3, Trainer.convertOutputsToClass(new double[]{0.1212, 0.3410, 0.9233, 0.5923, 0.5292, 0.1239, 0.7342}));
+
+    }
+
+    @Test
     public void divideLearnRateTasksTest() {
-        double[][] tasks = Trainer.divideLearningRateTasks(8, 0.1, 1, 0.1);
+        double[][] tasks = Trainer.divideLearningRateTasks(8, 0.1, 1.0, 0.1);
 
         for (int i = 0; i < tasks.length; i++) {
-            System.out.println(tasks[i][0]);
-            System.out.println(tasks[i][1]);
+            System.out.println("Thread" + i + "[" + tasks[i][0] + ", " + tasks[i][1] + "]");
+        }
+    }
+
+    @Test
+    public void divideLearnRateTasksLessTasksThanThreadsTest() {
+        double[][] tasks = Trainer.divideLearningRateTasks(1, 0.1, 1, 0.1);
+
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.println("Thread" + i + "[" + tasks[i][0] + ", " + tasks[i][1] + "]");
         }
     }
 
