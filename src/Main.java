@@ -9,6 +9,12 @@ import java.util.concurrent.*;
 public class Main {
 
     public static void main(String[] args) {
+        Trainer trainer = new Trainer(new NeuralNetwork(10, 16, 7, 0.05, -2, 2, -2, 2), Trainer.loadTrainData("src/files/features.txt", "src/files/targets.txt"), 5);
+        //trainer.trainKFoldNetwork();
+        //trainer.createOutputFile("src/files/unknown.txt", "classes.txt");
+
+        trainer.createParameterFile(new TrainParameters(7, 30, 0.1,  1.0, 0.1, new double[] {0, 1}, new double[] {0, 1}, new double[] {0, 1}, new double[] {0, 1}, 0.1), 8);
+
         ArrayList<Future> resultFutures = new ArrayList<>();
         ArrayList<NetworkResult> results = new ArrayList<NetworkResult>();
         ExecutorService executorService = Executors.newFixedThreadPool(8);
@@ -17,7 +23,7 @@ public class Main {
             resultFutures.add(executorService.submit(new Callable<ArrayList<NetworkResult>>() {
                 @Override
                 public ArrayList<NetworkResult> call() throws Exception {
-                    Trainer trainer = new Trainer(new NeuralNetwork(10, 16, 7, 0.05, -2, 2, -2, 2), Trainer.loadData("src/files/features.txt", "src/files/targets.txt"), 5);
+                    Trainer trainer = new Trainer(new NeuralNetwork(10, 16, 7, 0.05, -2, 2, -2, 2), Trainer.loadTrainData("src/files/features.txt", "src/files/targets.txt"), 5);
                     trainer.trainKFoldNetwork();
 //                    System.out.println("");
                     return trainer.getNetworkResults();

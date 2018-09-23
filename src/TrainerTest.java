@@ -45,6 +45,15 @@ public class TrainerTest {
 
     @Test
     public void divideLearnRateTasksTest() {
+        double[][] tasks = Trainer.divideLearningRateTasks(8, 0.1, 1.0, 0.1);
+
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.println("Thread" + i + "[" + tasks[i][0] + ", " + tasks[i][1] + "]");
+        }
+    }
+
+    @Test
+    public void divideLearnRateTasksLessTasksThanThreadsTest() {
         double[][] tasks = Trainer.divideLearningRateTasks(1, 0.1, 1, 0.1);
 
         for (int i = 0; i < tasks.length; i++) {

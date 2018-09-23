@@ -35,8 +35,6 @@ public class FindBestParameterThread implements Callable<ArrayList<TrainResult>>
 
         System.out.println("Starting thread " + threadId + " with learning rates from: " + parameters.getMinLearningRate() + " to: " + parameters.getMaxLearningRate());
 
-
-
         Trainer trainer = new Trainer(neuralNetwork, trainData, 5);
 
         long startTime = System.currentTimeMillis();
