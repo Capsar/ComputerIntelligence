@@ -40,6 +40,10 @@ public class Neuron {
         return lastErrorGradient;
     }
 
+    public double getTreshold() {
+        return treshold;
+    }
+
     public void setInputs(ArrayList<Connection> inputs) {
         this.inputs = inputs;
     }

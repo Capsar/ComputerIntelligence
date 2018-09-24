@@ -17,6 +17,20 @@ public class NeuralNetwork {
     private ArrayList<Neuron> hiddenLayer;
     private ArrayList<Neuron> outputLayer;
 
+    public NeuralNetwork(NeuralNetwork network) {
+        inputLayerSize = network.inputLayerSize;
+        hiddenLayerSize = network.hiddenLayerSize;
+        outputLayerSize = network.outputLayerSize;
+        learningRate = network.learningRate;
+        minInitialWeight = network.minInitialWeight;
+        maxInitialWeight = network.maxInitialWeight;
+        minInitialTreshold = network.minInitialTreshold;
+        maxInitialTreshold = network.maxInitialTreshold;
+        inputLayer = network.inputLayer;
+        hiddenLayer = network.hiddenLayer;
+        outputLayer = network.outputLayer;
+    }
+
     /**
      * Constructor for the neural network object.
      * @param inputLayerSize the amount of neurons in the input layer
@@ -266,5 +280,35 @@ public class NeuralNetwork {
             meanSquaredError += Math.pow(outputLayer.get(i).getLastError(), 2);
         }
         return meanSquaredError;
+    }
+
+    @Override
+    public NeuralNetwork clone(){
+        try {
+            return (NeuralNetwork) super.clone();
+        }catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return new NeuralNetwork(this);
+        }
+    }
+
+    public void print() {
+        System.out.println("Input neurons=" + this.inputLayerSize + ", hidden neurons=" + this.hiddenLayerSize + ", output neurons=" + this.outputLayerSize);
+        System.out.println("input thresholds:");
+        inputLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        System.out.println("\n\nhidden thresholds:");
+        hiddenLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        System.out.println("\n\noutput thresholds:");
+        outputLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        System.out.println("\n\nweights of connections from input to hidden:");
+        inputLayer.forEach(neuron -> {
+            System.out.println("\nNeuron with threshold=" + neuron.getTreshold());
+            neuron.getOutputs().forEach(c -> System.out.println(c.getWeight() + ", "));
+        });
+        System.out.println("\n\nweights of connections from hidden to output:");
+        hiddenLayer.forEach(neuron -> {
+            System.out.println("\nNeuron with threshold=" + neuron.getTreshold());
+            neuron.getOutputs().forEach(c -> System.out.println(c.getWeight() + ", "));
+        });
     }
 }

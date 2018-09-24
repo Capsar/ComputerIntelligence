@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+
 public class NetworkResult {
 
     private float percentageVali;
     private float percentageTest;
+    private ArrayList<TrainTarget> trainingSet;
     private NeuralNetwork network;
     private float[] checkValidation;
     private float[] checkTest;
@@ -10,13 +13,14 @@ public class NetworkResult {
         this.network = network;
     }
 
-    public NetworkResult(NeuralNetwork network, float[] checkValidation, float[] checkTest) {
+    public NetworkResult(NeuralNetwork network, float[] checkValidation, float[] checkTest, ArrayList<TrainTarget> trainingSet) {
         this.network = network;
         this.checkValidation = checkValidation;
         this.checkTest = checkTest;
         this.percentageVali = checkValidation[1];
         this.percentageTest = checkTest[1];
 
+        this.trainingSet = trainingSet;
     }
 
     public float[] getCheckValidation() {
@@ -37,5 +41,9 @@ public class NetworkResult {
 
     public float getPercentageTest() {
         return percentageTest;
+    }
+
+    public ArrayList<TrainTarget> getTrainingSet() {
+        return trainingSet;
     }
 }

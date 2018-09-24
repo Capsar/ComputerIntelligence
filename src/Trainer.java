@@ -2,6 +2,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,8 +51,8 @@ public class Trainer {
      * @param targetsUrl  the url for the location of the targets file
      * @return list of generated products
      */
-    public static ArrayList<TrainTarget> loadTrainData(String featuresUrl, String targetsUrl) {
-        ArrayList<TrainTarget> trainData = new ArrayList<>();
+    public static ArrayList<TrainTarget> loadTrainingSet(String featuresUrl, String targetsUrl) {
+        ArrayList<TrainTarget> trainingSet = new ArrayList<>();
 
         try {
             // Create the readers for the features and targets files
@@ -85,15 +86,19 @@ public class Trainer {
                 }
 
                 // Create a product with the current features and targets and add it to the list
-                trainData.add(new TrainTarget(features, desiredOutputs));
+                trainingSet.add(new TrainTarget(features, desiredOutputs));
             }
+
+            //Randomize the trainingSet
+            Collections.shuffle(trainingSet);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return trainData;
+        return trainingSet;
     }
 
     public static ArrayList<double[]> loadInputData(String fileUrl) {
@@ -188,27 +193,25 @@ public class Trainer {
 
 
     public int trainKFoldNetwork() {
-        int amountOfEpochs = 1;
+        int amountOfEpochs = 0;
         int test = 0;
         int validation = 1;
         double lastMSE = Double.MAX_VALUE;
         double currentMSE = Double.MIN_VALUE;
 
-        amountOfEpochs = 1;
-
-        NeuralNetwork tempNetwork = neuralNetwork;
-
         //Check whether the error is increasing, if that is the case minimum has been reached.
-        while (true) {
+        while (currentMSE < lastMSE) {
+            amountOfEpochs++;
             //compute error with the validation set
             lastMSE = computeMSE(validation);
-            tempNetwork = neuralNetwork;
 
             //Train with the trainingSet
             for (int i = 0; i < trainData.size(); i++) {
+                //Skip the validation and test partition
                 if (i == validation || i == test)
                     continue;
 
+                //For each partition train the network with each data object
                 for (TrainTarget tt : trainData.get(i).getTrainTargets()) {
                     double[] inputs = tt.getInputs();
                     double[] desiredOutputs = tt.getDesiredOutputs();
@@ -217,16 +220,13 @@ public class Trainer {
             }
             //compute error with the validation set
             currentMSE = computeMSE(validation);
-            amountOfEpochs++;
-            if(currentMSE >= lastMSE)
-                break;
         }
-        neuralNetwork = tempNetwork;
         //finished training with validation set, now check number of incorrect classifications with test set.
         float[] checkValidation = checkKFoldNetwork(validation);
         float[] checkTest = checkKFoldNetwork(test);
-//        System.out.println("Epochs=" + amountOfEpochs + " -V- MSE=" + computeMSE(validation) + " E=" + checkValidation[0] + " P=" + checkValidation[1] + "%" + " -T- MSE=" + computeMSE(test) + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
-        this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest));
+        System.out.println("Epochs=" + amountOfEpochs + " -V- MSE=" + checkValidation[2] + " E=" + checkValidation[0] + " P=" + checkValidation[1] + "%" +
+                                                        " -T- MSE=" + checkTest[2] + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
+        this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest, this.trainingSet));
 
         return amountOfEpochs;
     }
@@ -268,7 +268,7 @@ public class Trainer {
             }
         }
         float percentage = incorrectClassifications / targets.size() * 100.0f;
-        return new float[]{incorrectClassifications, percentage};
+        return new float[]{incorrectClassifications, percentage, (float) computeMSE(test)};
     }
 
     /**
@@ -336,7 +336,7 @@ public class Trainer {
                             parameters.getMaxInitialWeightInterval(),
                             parameters.getMinInitialTresholdInterval(),
                             parameters.getMaxInitialTreshldInterval(),
-                            parameters.getStepSizeWeight()), neuralNetwork, loadTrainData("src/files/features.txt", "src/files/targets.txt"), i, kFold)));
+                            parameters.getStepSizeWeight()), neuralNetwork, loadTrainingSet("src/files/features.txt", "src/files/targets.txt"), i, kFold)));
         }
 
         boolean finished = false;

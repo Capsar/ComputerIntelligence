@@ -12,7 +12,7 @@ public class TrainerTest {
 
     @Test
     public void loadDataTest() {
-        ArrayList<TrainTarget> products = Trainer.loadTrainData("src/files/features.txt", "src/files/targets.txt");
+        ArrayList<TrainTarget> products = Trainer.loadTrainingSet("src/files/features.txt", "src/files/targets.txt");
         assertEquals(products.size(), 7854);
 
         assertEquals(products.get(2).getDesiredOutputs()[1], 1.0);
