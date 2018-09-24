@@ -18,9 +18,10 @@ public class Main {
         ArrayList<Future> resultFutures = new ArrayList<>();
         ArrayList<NetworkResult> results = new ArrayList<NetworkResult>();
         ExecutorService executorService = Executors.newFixedThreadPool(8);
-        System.out.println("Start training 10 times");
+        int tests = 100;
+        System.out.println("Start training "+ tests +" times");
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < tests; i++) {
             int finalI = i;
             resultFutures.add(executorService.submit(new Callable<ArrayList<NetworkResult>>() {
                 @Override
@@ -77,7 +78,7 @@ public class Main {
         Trainer trainer = new Trainer(network, result.getTrainingSet(), 5);
         float[] check = trainer.checkKFoldNetwork(0);
         System.out.println("check: " + check[0] + ", " + check[1] + ", " + check[2]);
-        trainer.createOutputFile("src/files/unknown.txt", "classes2.txt");
+        trainer.createOutputFile("src/files/unknown.txt", "classes3.txt");
 
 
 

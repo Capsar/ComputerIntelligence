@@ -1,6 +1,8 @@
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -103,16 +105,10 @@ public class Trainer {
 
     public static ArrayList<double[]> loadInputData(String fileUrl) {
         ArrayList<double[]> inputData = new ArrayList<>();
-
+        File inputs = new File(fileUrl);
         try {
-            FileReader fr = new FileReader(fileUrl);
-
-            BufferedReader br = new BufferedReader(fr);
-
-            while(fr.ready()) {
-                // Get the current line of 10 features and convert them to an array of doubles
-                String currentLine = br.readLine();
-                String[] featureStrings = currentLine.split(",");
+            Files.lines(inputs.toPath()).forEach(s -> {
+                String[] featureStrings = s.split(",");
                 double[] features = new double[featureStrings.length];
 
                 for (int i = 0; i < features.length; i++) {
@@ -121,13 +117,10 @@ public class Trainer {
 
                 // Create a product with the current features and targets and add it to the list
                 inputData.add(features);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return inputData;
     }
 
@@ -487,7 +480,7 @@ public class Trainer {
         File outputFile = new File(outputFileName);
 
         ArrayList<double[]> inputs = loadInputData(inputFileUrl);
-
+        System.out.println("Loaded " + inputs.size() + " inputs");
         try {
             PrintWriter printWriter = new PrintWriter(outputFile);
 
@@ -496,7 +489,7 @@ public class Trainer {
             for (double[] input : inputs) {
                 int computedClass = convertOutputsToClass(neuralNetwork.computeOutput(input));
 
-                outputString +=String.valueOf(computedClass) + ",";
+                outputString += String.valueOf(computedClass) + ",";
             }
 
             printWriter.print(outputString.substring(0, outputString.length() - 1));
