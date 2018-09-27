@@ -35,4 +35,12 @@ public class Agent {
 		y=startY;
 		nrOfActionsSinceReset=0;
 	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
 }

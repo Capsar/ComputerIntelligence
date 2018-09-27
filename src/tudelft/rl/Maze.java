@@ -93,4 +93,9 @@ public class Maze {
 		//use this to find the current state of the agent, or use Agent.getState(Maze m)
 		return states[y][x];
 	}
+
+	public State[][] getStates() {
+		return states;
+	}
+
 }

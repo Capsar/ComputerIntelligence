@@ -1,7 +1,30 @@
-package tudelft.rl;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import tudelft.rl.mysolution.RunMe;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 /**
  * Created by Sam van Berkel on 27/09/2018.
  */
-public class menuController {
+public class menuController implements Initializable{
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
+
+    @FXML
+    public void yesButton() throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("maze.fxml"));
+        RunMe.getScene().setRoot(root);
+    }
+
+    @FXML
+    public void noButton() {
+        //mazeController.launchMaze();
+    }
 }
