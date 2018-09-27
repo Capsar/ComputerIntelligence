@@ -3,9 +3,14 @@ package tudelft.rl.mysolution;
 import java.io.File;
 import java.net.URL;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import tudelft.rl.*;
 
-public class RunMe {
+public class RunMe extends Application {
 
 	public static void main(String[] args) {
 
@@ -29,16 +34,25 @@ public class RunMe {
 		boolean stop=false;
 
 		//keep learning until you decide to stop
-		while (!stop) {
-			//TODO implement the action selection and learning cycle
-			double epsilon = 0.5;
-			Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
-			robot.doAction(action, maze);
-			State robotS = robot.getState(maze);
-
-			//TODO figure out a stopping criterion
-		}
+		//while (!stop) {
+		//	//TODO implement the action selection and learning cycle
+		//	double epsilon = 0.5;
+		//	Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
+		//	robot.doAction(action, maze);
+		//	State robotS = robot.getState(maze);
+		//
+		//	//TODO figure out a stopping criterion
+		//}
 
 	}
 
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		System.out.println("test");
+		Parent root = FXMLLoader.load(getClass().getResource("/src/tudelft/rl/mysolution/maze.fxml"));
+		Scene scene = new Scene(root, 1000, 1000);
+		primaryStage.setTitle("Maze");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
 }
