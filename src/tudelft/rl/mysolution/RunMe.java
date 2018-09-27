@@ -2,6 +2,8 @@ package tudelft.rl.mysolution;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -32,20 +34,38 @@ public class RunMe extends Application {
 		QLearning learn=new MyQLearning();
 
 		boolean stop=false;
-
+		ArrayList<Integer> x = new ArrayList<Integer>();
+		ArrayList<Integer> y = new ArrayList<Integer>();
 		//keep learning until you decide to stop
+		int numberOfActions = 0;
 		while (!stop) {
-			//TODO implement the action selection and learning cycle
-			double epsilon = 0.5;
+			numberOfActions++;
+			double epsilon = 0.1;
 			double r = 0.5;
 			double alfa = 0.5;
 			double gamma = 0.5;
+			//Store old state.
 			State oldState = robot.getState(maze);
+			//Decide which action the do.
 			Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
+			//Do the action.
 			robot.doAction(action, maze);
+			//Store the new state.
 			State newSate = robot.getState(maze);
+
+			//Update the Q.
 			learn.updateQ(oldState, action, r, newSate, maze.getValidActions(robot), alfa, gamma);
+
+			//Store the position
+			x.add(robot.x);
+			y.add(robot.y);
 			if(robot.x == 9 && robot.y == 9) {
+				for(int xx : x)
+					System.out.println(xx);
+				System.out.println("==================================");
+				for(int yy : y)
+					System.out.println(yy);
+				System.out.println("goal reached");
 				robot.reset();
 			}
 			//TODO figure out a stopping criterion
