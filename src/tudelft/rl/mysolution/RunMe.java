@@ -32,10 +32,17 @@ public class RunMe {
 		while (!stop) {
 			//TODO implement the action selection and learning cycle
 			double epsilon = 0.5;
+			double r = 0.5;
+			double alfa = 0.5;
+			double gamma = 0.5;
+			State oldState = robot.getState(maze);
 			Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
 			robot.doAction(action, maze);
-			State robotS = robot.getState(maze);
-
+			State newSate = robot.getState(maze);
+			learn.updateQ(oldState, action, r, newSate, maze.getValidActions(robot), alfa, gamma);
+			if(robot.x == 9 && robot.y == 9) {
+				robot.reset();
+			}
 			//TODO figure out a stopping criterion
 		}
 
