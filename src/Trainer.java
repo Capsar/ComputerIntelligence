@@ -213,12 +213,17 @@ public class Trainer {
             }
             //compute error with the validation set
             currentMSE = computeMSE(validation);
+            if(amountOfEpochs > 1000) {
+                System.out.println("Epochs over 1000");
+                break;
+            }
+
         }
         //finished training with validation set, now check number of incorrect classifications with test set.
         float[] checkValidation = checkKFoldNetwork(validation);
         float[] checkTest = checkKFoldNetwork(test);
-        System.out.println("Epochs=" + amountOfEpochs + " -V- MSE=" + checkValidation[2] + " E=" + checkValidation[0] + " P=" + checkValidation[1] + "%" +
-                                                        " -T- MSE=" + checkTest[2] + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
+//        System.out.println("Epochs=" + amountOfEpochs + " -V- MSE=" + checkValidation[2] + " E=" + checkValidation[0] + " P=" + checkValidation[1] + "%" +
+//                                                        " -T- MSE=" + checkTest[2] + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
         this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest, this.trainingSet));
 
         return amountOfEpochs;
@@ -262,6 +267,20 @@ public class Trainer {
         }
         float percentage = incorrectClassifications / targets.size() * 100.0f;
         return new float[]{incorrectClassifications, percentage, (float) computeMSE(test)};
+    }
+
+    public int[][] checkConfusionMatrix(int test) {
+        int[][] result = new int[8][8];
+        ArrayList<TrainTarget> targets = trainData.get(test).getTrainTargets();
+        for (TrainTarget tt : targets) {
+            double[] inputs = tt.getInputs();
+            double[] desiredOutputs = tt.getDesiredOutputs();
+            double[] currentOutputs = neuralNetwork.computeOutput(inputs);
+            int currentTarget = convertOutputsToClass(currentOutputs);
+            int desiredTarget = convertOutputsToClass(desiredOutputs);
+            result[currentTarget][desiredTarget]++;
+        }
+        return result;
     }
 
     /**
