@@ -8,6 +8,7 @@ import tudelft.rl.QLearning;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 public class MyEGreedy extends EGreedy {
 
@@ -26,25 +27,25 @@ public class MyEGreedy extends EGreedy {
 
 		double[] actionValues = q.getActionValues(r.getState(m), availableActions);
 
-		double maximumValue = Double.MIN_VALUE;
-		int maximumIndex = 0;
+		double minimumValue = Double.MAX_VALUE;
+		int minimumIndex = 0;
 
 		for (int i = 0; i < actionValues.length; i++) {
-			if (actionValues[i] > maximumValue) {
-				maximumValue = actionValues[i];
-				maximumIndex = i;
+			if (actionValues[i] < minimumValue) {
+				minimumValue = actionValues[i];
+				minimumIndex = i;
 			}
 		}
-		return availableActions.get(maximumIndex);
+		return availableActions.get(minimumIndex);
 	}
 
 	@Override
 	public Action getEGreedyAction(Agent r, Maze m, QLearning q, double epsilon) {
-		epsilon = epsilon / r.nrOfActionsSinceReset + 1;
+		epsilon = epsilon / ((r.nrOfActionsSinceReset + 1)/10);
 
 		double probability = (1 - epsilon);
 
-		if (Math.random() <= probability) {
+		if (new Random().nextDouble() <= probability) {
 			return getBestAction(r, m, q);
 		} else {
 			return getRandomAction(r, m);

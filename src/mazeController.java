@@ -117,9 +117,9 @@ public class mazeController implements Initializable{
 
                     numberOfActions++;
                     double epsilon = 0.1;
-                    double r = 0.5;
-                    double alfa = 0.5;
-                    double gamma = 0.5;
+                    double r = 0.9;
+                    double alfa = 0.9;
+                    double gamma = 0.9;
                     //Store old state.
                     tudelft.rl.State oldState = robot.getState(maze);
                     //Decide which action the do.
