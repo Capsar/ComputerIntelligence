@@ -50,13 +50,13 @@ public class mazeController implements Initializable{
 
         for (int i = 0; i < mazeWidth; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
-            colConst.setPercentWidth(100 / mazeWidth);
+            colConst.setPercentWidth(100.0 / mazeWidth);
             mazeGridPane.getColumnConstraints().add(colConst);
         }
 
         for (int i = 0; i < mazeHeight; i++) {
             RowConstraints rowConst = new RowConstraints();
-            rowConst.setPercentHeight(100 / mazeWidth);
+            rowConst.setPercentHeight(100.0 / mazeHeight);
             mazeGridPane.getRowConstraints().add(rowConst);
         }
 
@@ -136,11 +136,7 @@ public class mazeController implements Initializable{
                     x.add(robot.x);
                     y.add(robot.y);
                     if(robot.x == 9 && robot.y == 9) {
-                        for(int xx : x)
-                            System.out.println(xx);
-                        System.out.println("==================================");
-                        for(int yy : y)
-                            System.out.println(yy);
+//                        printPath(x, y);
                         System.out.println("goal reached");
                         robot.reset();
                     }
@@ -150,11 +146,19 @@ public class mazeController implements Initializable{
                     Node nextNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
                     nextNode.setStyle("-fx-background-color: red");
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+            }
+
+            private void printPath(ArrayList<Integer> x, ArrayList<Integer> y) {
+                for(int xx : x)
+                    System.out.println(xx);
+                System.out.println("==================================");
+                for(int yy : y)
+                    System.out.println(yy);
             }
         };
 

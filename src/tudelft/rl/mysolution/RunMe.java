@@ -8,14 +8,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import tudelft.rl.*;
 
 /**
  * Application that launches the maze, the training and initialization of the maze is done in the mazeController.
  */
 public class RunMe extends Application {
 
-    private static Scene scene;
+    private static Stage window;
 
 	public static void main(String[] args) {
         launch(args);
@@ -26,15 +25,13 @@ public class RunMe extends Application {
 
         URL url = new File("resources/menu.fxml").toURL();
         Parent root = FXMLLoader.load(url);
-        scene = new Scene(root, 1000, 500);
-
-        primaryStage = primaryStage;
-        primaryStage.setTitle("Maze");
-        primaryStage.setScene(scene);
+        window = primaryStage;
+        window.setTitle("Maze");
+        window.setScene(new Scene(root));
         primaryStage.show();
     }
 
-    public static Scene getScene() {
-        return scene;
+    public static Stage getWindow() {
+        return window;
     }
 }

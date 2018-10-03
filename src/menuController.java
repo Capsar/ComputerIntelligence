@@ -2,6 +2,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import tudelft.rl.mysolution.RunMe;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class menuController implements Initializable{
     @FXML
     public void yesButton() throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("maze.fxml"));
-        RunMe.getScene().setRoot(root);
+        RunMe.getWindow().setScene(new Scene(root));
     }
 
     @FXML
