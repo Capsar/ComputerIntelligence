@@ -14,9 +14,6 @@ import tudelft.rl.*;
  * Application that launches the maze, the training and initialization of the maze is done in the mazeController.
  */
 public class RunMe extends Application {
-
-    private static Scene scene;
-
 	public static void main(String[] args) {
         launch(args);
     }
@@ -26,15 +23,10 @@ public class RunMe extends Application {
 
         URL url = new File("resources/maze.fxml").toURL();
         Parent root = FXMLLoader.load(url);
-        scene = new Scene(root, 1500, 800);
+        Scene scene = new Scene(root, 1500, 800);
 
-        primaryStage = primaryStage;
         primaryStage.setTitle("Maze");
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    public static Scene getScene() {
-        return scene;
     }
 }

@@ -58,13 +58,13 @@ public class mazeController implements Initializable{
 
         for (int i = 0; i < mazeWidth; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
-            colConst.setPercentWidth(100 / mazeWidth);
+            colConst.setPercentWidth(100.0 / mazeWidth);
             mazeGridPane.getColumnConstraints().add(colConst);
         }
 
         for (int i = 0; i < mazeHeight; i++) {
             RowConstraints rowConst = new RowConstraints();
-            rowConst.setPercentHeight(100 / mazeWidth);
+            rowConst.setPercentHeight(100.0 / mazeHeight);
             mazeGridPane.getRowConstraints().add(rowConst);
         }
 
@@ -150,8 +150,8 @@ public class mazeController implements Initializable{
                         currentNode.setStyle("-fx-background-color: white");
                     }
 
-                    double r = 0;
                     double epsilon = 0.1;
+                    double r = 0.9;
                     double alfa = 0.7;
                     double gamma = 0.9;
 
@@ -185,14 +185,8 @@ public class mazeController implements Initializable{
                     x.add(robot.x);
                     y.add(robot.y);
                     if(robot.x == 9 && robot.y == 9) {
-                        for(int xx : x) {
-                            //System.out.println(xx);
-                        }
-
-                        //System.out.println("==================================");
-                        for(int yy : y) {
-                            //System.out.println(yy);
-                        }
+//                        printPath(x, y);
+                        System.out.println("goal reached");
 
                         //System.out.println("goal reached");
                         numberOfFinishes++;
@@ -218,6 +212,14 @@ public class mazeController implements Initializable{
                     }
                 }
                 System.out.println("stopped");
+            }
+
+            private void printPath(ArrayList<Integer> x, ArrayList<Integer> y) {
+                for(int xx : x)
+                    System.out.println(xx);
+                System.out.println("==================================");
+                for(int yy : y)
+                    System.out.println(yy);
             }
         };
 
