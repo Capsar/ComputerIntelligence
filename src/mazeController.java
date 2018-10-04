@@ -2,6 +2,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -29,9 +32,14 @@ public class mazeController implements Initializable{
     EGreedy selection;
     QLearning learn;
 
-
     @FXML
     private GridPane mazeGridPane;
+
+    @FXML
+    private TextField delayTextField;
+
+    @FXML
+    private CheckBox showAgentCheckBox;
 
 
     @Override
@@ -62,13 +70,36 @@ public class mazeController implements Initializable{
 
         for (int row = 0; row < mazeHeight; row++) {
             for (int col = 0; col < mazeWidth; col++) {
-                AnchorPane pane = new AnchorPane();
+                GridPane rewardGrid = new GridPane();
                 if (states[row][col].getType().equals("0")) {
-                    pane.setStyle("-fx-background-color: black");
+                    rewardGrid.setStyle("-fx-background-color: black");
                 } else {
-                    pane.setStyle("-fx-background-color: white");
+                    rewardGrid.setStyle("-fx-background-color: white");
+
+                    for (int i = 0; i < 3; i++) {
+                        ColumnConstraints colConst = new ColumnConstraints();
+                        colConst.setPercentWidth(1 / 3);
+                        rewardGrid.getColumnConstraints().add(colConst);
+                    }
+
+                    for (int i = 0; i < 3; i++) {
+                        RowConstraints rowConst = new RowConstraints();
+                        rowConst.setPercentHeight(1 / 3);
+                        rewardGrid.getRowConstraints().add(rowConst);
+                    }
+
+                    Label rewardUp = new Label("0.0");
+                    Label rewardRight = new Label("0.0");
+                    Label rewardDown = new Label("0.0");
+                    Label rewardLeft = new Label("0.0");
+
+                    rewardGrid.add(rewardUp, 1, 0);
+                    rewardGrid.add(rewardRight, 2, 1);
+                    rewardGrid.add(rewardDown, 1, 2);
+                    rewardGrid.add(rewardLeft, 0, 1);
+
                 }
-                mazeGridPane.add(pane, col, row);
+                mazeGridPane.add(rewardGrid, col, row);
             }
         }
     }
@@ -108,53 +139,85 @@ public class mazeController implements Initializable{
                 ArrayList<Integer> y = new ArrayList<Integer>();
 
                 //keep learning until you decide to stop
-                int numberOfActions = 0;
+                int numberOfFinishes = 0;
+
+                System.out.println("starting maze");
 
                 while (!stop) {
-                    // Get the current node and set its background back to white
-                    Node currentNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
-                    currentNode.setStyle("-fx-background-color: white");
+                    if (showAgentCheckBox.isSelected()) {
+                        // Get the current node and set its background back to white
+                        Node currentNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
+                        currentNode.setStyle("-fx-background-color: white");
+                    }
 
-                    numberOfActions++;
+                    double r = 0;
                     double epsilon = 0.1;
-                    double r = 0.5;
-                    double alfa = 0.5;
-                    double gamma = 0.5;
+                    double alfa = 0.7;
+                    double gamma = 0.9;
+
+                    int oldX = robot.getX();
+                    int oldY = robot.getY();
+
                     //Store old state.
                     tudelft.rl.State oldState = robot.getState(maze);
                     //Decide which action the do.
                     Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
+
+                    // Get the available actions from the current location
+                    ArrayList<Action> availableActions = maze.getValidActions(robot);
+
                     //Do the action.
                     robot.doAction(action, maze);
+
                     //Store the new state.
                     tudelft.rl.State newSate = robot.getState(maze);
 
+                    if (robot.x == 9 && robot.y == 9) {
+                        r = 10;
+                    }
+
                     //Update the Q.
-                    learn.updateQ(oldState, action, r, newSate, maze.getValidActions(robot), alfa, gamma);
+                    learn.updateQ(oldState, action, r, newSate, availableActions, alfa, gamma);
+
+                    updateQValuesInGui(learn.getActionValues(oldState, availableActions), availableActions, oldX, oldY);
 
                     //Store the position
                     x.add(robot.x);
                     y.add(robot.y);
                     if(robot.x == 9 && robot.y == 9) {
-                        for(int xx : x)
-                            System.out.println(xx);
-                        System.out.println("==================================");
-                        for(int yy : y)
-                            System.out.println(yy);
-                        System.out.println("goal reached");
+                        for(int xx : x) {
+                            //System.out.println(xx);
+                        }
+
+                        //System.out.println("==================================");
+                        for(int yy : y) {
+                            //System.out.println(yy);
+                        }
+
+                        //System.out.println("goal reached");
+                        numberOfFinishes++;
+                        //System.out.println(robot.nrOfActionsSinceReset);
                         robot.reset();
                     }
                     //TODO figure out a stopping criterion
 
-                    // Get the current node and set its background back to red to mark the location of the agent
-                    Node nextNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
-                    nextNode.setStyle("-fx-background-color: red");
+                    if (showAgentCheckBox.isSelected()) {
+                        // Get the current node and set its background back to red to mark the location of the agent
+                        Node nextNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
+                        nextNode.setStyle("-fx-background-color: red");
+                    }
+
+                    if (numberOfFinishes > 10000) {
+                        stop = true;
+                    }
+
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(Integer.valueOf(delayTextField.getText()));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+                System.out.println("stopped");
             }
         };
 
@@ -162,6 +225,26 @@ public class mazeController implements Initializable{
 
 
 
+    }
+
+    public void updateQValuesInGui(double[] actionValues, ArrayList<Action> actions, int x, int y) {
+        GridPane node = (GridPane) getNodeByRowColumnIndex(y, x, mazeGridPane);
+
+        for (int i = 0; i < actions.size(); i++) {
+            if (actions.get(i).id.equals("up")) {
+                Label label = (Label) getNodeByRowColumnIndex(0, 1, node);
+                label.setText(String.valueOf(actionValues[i]));
+            } else if (actions.get(i).id.equals("down")) {
+                Label label = (Label) getNodeByRowColumnIndex(2, 1, node);
+                label.setText(String.valueOf(actionValues[i]));
+            } else if (actions.get(i).id.equals("left")) {
+                Label label = (Label) getNodeByRowColumnIndex(1, 0, node);
+                label.setText(String.valueOf(actionValues[i]));
+            } else if (actions.get(i).id.equals("right")) {
+                Label label = (Label) getNodeByRowColumnIndex(1, 2, node);
+                label.setText(String.valueOf(actionValues[i]));
+            }
+        }
     }
 
     /**

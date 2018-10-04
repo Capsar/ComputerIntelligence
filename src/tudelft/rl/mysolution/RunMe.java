@@ -24,9 +24,9 @@ public class RunMe extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        URL url = new File("resources/menu.fxml").toURL();
+        URL url = new File("resources/maze.fxml").toURL();
         Parent root = FXMLLoader.load(url);
-        scene = new Scene(root, 1000, 500);
+        scene = new Scene(root, 1500, 800);
 
         primaryStage = primaryStage;
         primaryStage.setTitle("Maze");
