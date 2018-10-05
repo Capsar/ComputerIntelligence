@@ -15,6 +15,7 @@
             <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <Button mnemonicParsing="false" onAction="#launchMaze" text="Start" />
+                   <Button mnemonicParsing="false" onAction="#noGUI" text="No GUI" />
                </children>
             </VBox>
          </children></AnchorPane>
