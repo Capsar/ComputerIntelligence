@@ -45,7 +45,7 @@ public class mazeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        StaticRunMe.init();
+        StaticRunMe.initEasyMaze();
         createMazeGrid();
     }
 
@@ -142,12 +142,7 @@ public class mazeController implements Initializable {
         int numberOfActions = 0;
         Agent robot = StaticRunMe.robot;
 
-
         while (!stop) {
-            // Get the current node and set its background back to white
-            Node currentNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
-            currentNode.setStyle("-fx-background-color: white");
-
             numberOfActions = StaticRunMe.loop(x, y, numberOfActions);
         }
     }

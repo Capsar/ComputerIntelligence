@@ -15,14 +15,27 @@ public class StaticRunMe {
     public static Maze maze;
     private static MyEGreedy selection;
     private static MyQLearning learn;
+    private static int width = 9, height = 9;
 
-    public static void init() {
+    public static void initEasyMaze() {
+        //load the maze
+        URL file = System.class.getResource("/data/easy_maze.txt");
+        maze = new Maze(new File(file.getPath()));
+        init();
+    }
+
+    public static void initToyMaze() {
         //load the maze
         URL file = System.class.getResource("/data/toy_maze.txt");
         maze = new Maze(new File(file.getPath()));
+        init();
+    }
 
+    public static void init() {
+        width = maze.getStates()[0].length-1;
+        height = maze.getStates().length-1;
         //Set the reward at the bottom right to 10
-        maze.setR(maze.getState(9, 9), 10);
+        maze.setR(maze.getState(width, height), 10);
 
         //create a robot at starting and reset location (0,0) (top left)
         robot = new Agent(0, 0);
@@ -57,7 +70,7 @@ public class StaticRunMe {
         //Store the position
         x.add(robot.x);
         y.add(robot.y);
-        if (robot.x == 9 && robot.y == 9) {
+        if (robot.x == width && robot.y == height) {
 //                        printPath(x, y);
             System.out.println("goal reached");
             robot.reset();
