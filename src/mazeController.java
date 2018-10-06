@@ -129,6 +129,9 @@ public class mazeController implements Initializable {
 
     }
 
+    /**
+     * Run the agent without gui, which is faster.
+     */
     public void noGUI() {
         boolean stop = false;
 

@@ -38,8 +38,7 @@ public class StaticRunMe {
     public static int loop(ArrayList<Integer> x, ArrayList<Integer> y, int numberOfActions) {
         numberOfActions++;
         double epsilon = 0.1;
-        double r = 0.9;
-        double alfa = 0.9;
+        double alfa = 0.7;
         double gamma = 0.9;
         //Store old state.
         State oldState = robot.getState(maze);
@@ -48,10 +47,12 @@ public class StaticRunMe {
         //Do the action.
         robot.doAction(action, maze);
         //Store the new state.
-        State newSate = robot.getState(maze);
+        State newState = robot.getState(maze);
+
+        double r = maze.getR(newState);
 
         //Update the Q.
-        learn.updateQ(oldState, action, r, newSate, maze.getValidActions(robot), alfa, gamma);
+        learn.updateQ(oldState, action, r, newState, maze.getValidActions(robot), alfa, gamma);
 
         //Store the position
         x.add(robot.x);
