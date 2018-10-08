@@ -30,7 +30,6 @@ public class Agent {
 	}
 	
 	public void reset() {
-		System.out.println(nrOfActionsSinceReset);
 		x=startX;
 		y=startY;
 		nrOfActionsSinceReset=0;

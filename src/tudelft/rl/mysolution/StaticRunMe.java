@@ -6,6 +6,8 @@ import tudelft.rl.Maze;
 import tudelft.rl.State;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -32,8 +34,8 @@ public class StaticRunMe {
     }
 
     public static void init() {
-        width = maze.getStates()[0].length-1;
-        height = maze.getStates().length-1;
+        width = maze.getStates()[0].length - 1;
+        height = maze.getStates().length - 1;
         //Set the reward at the bottom right to 10
         maze.setR(maze.getState(width, height), 10);
 
@@ -48,19 +50,13 @@ public class StaticRunMe {
     }
 
 
-    public static int loop(ArrayList<Integer> x, ArrayList<Integer> y, int numberOfActions) {
-        numberOfActions++;
-        double epsilon = 0.1;
-        double alfa = 0.7;
-        double gamma = 0.9;
+    public static int loop(ArrayList<Integer> x, ArrayList<Integer> y, double epsilon, double alfa, double gamma, int numberOfTrails) {
         //Store old state.
         State oldState = robot.getState(maze);
         //Decide which action the do.
         Action action = selection.getEGreedyAction(robot, maze, learn, epsilon);
-        //Do the action.
-        robot.doAction(action, maze);
-        //Store the new state.
-        State newState = robot.getState(maze);
+        //Do the action & store the new state.
+        State newState = robot.doAction(action, maze);
 
         double r = maze.getR(newState);
 
@@ -71,20 +67,27 @@ public class StaticRunMe {
         x.add(robot.x);
         y.add(robot.y);
         if (robot.x == width && robot.y == height) {
-//                        printPath(x, y);
-            System.out.println("goal reached");
+            numberOfTrails++;
+            System.out.print(robot.nrOfActionsSinceReset + " ");
             robot.reset();
         }
-        return numberOfActions;
+        return numberOfTrails;
     }
 
     private static void printPath(ArrayList<Integer> x, ArrayList<Integer> y) {
-        for(int xx : x)
+        for (int xx : x)
             System.out.println(xx);
         System.out.println("==================================");
-        for(int yy : y)
+        for (int yy : y)
             System.out.println(yy);
     }
 
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 
 }

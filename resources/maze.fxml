@@ -16,6 +16,8 @@
                <children>
                   <Button mnemonicParsing="false" onAction="#launchMaze" text="Start" />
                    <Button mnemonicParsing="false" onAction="#noGUI" text="No GUI" />
+                   <Button mnemonicParsing="false" onAction="#easyMaze" text="Switch to easy maze" />
+                   <Button mnemonicParsing="false" onAction="#toyMaze" text="Switch to toy maze" />
                </children>
             </VBox>
          </children></AnchorPane>

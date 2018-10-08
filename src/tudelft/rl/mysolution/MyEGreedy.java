@@ -39,7 +39,7 @@ public class MyEGreedy extends EGreedy {
 
     @Override
     public Action getEGreedyAction(Agent r, Maze m, QLearning q, double epsilon) {
-		epsilon = epsilon / ((r.nrOfActionsSinceReset + 1)/10);
+//		epsilon = epsilon / ((r.nrOfActionsSinceReset + 1)/10);
 
         double probability = (1 - epsilon);
 

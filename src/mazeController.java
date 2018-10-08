@@ -20,6 +20,10 @@ public class mazeController implements Initializable {
 
     @FXML
     private GridPane mazeGridPane;
+    private static final int MAX_TRAILS = 100;
+    private double epsilon = 0.1;
+    private double alfa = 0.7;
+    private double gamma = 0.9;
 
     /**
      * Returns the node at a specific row and column of a gridpane.
@@ -45,13 +49,19 @@ public class mazeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        toyMaze();
+    }
+
+
+    public void easyMaze() {
         StaticRunMe.initEasyMaze();
         createMazeGrid();
     }
 
-    /**
-     * Initializes the global variables of the maze and agent.
-     */
+    public void toyMaze() {
+        StaticRunMe.initToyMaze();
+        createMazeGrid();
+    }
 
     /**
      * Creates the grid for the maze in the gui, loads the walls with black and the paths with white.
@@ -60,6 +70,8 @@ public class mazeController implements Initializable {
         State[][] states = StaticRunMe.maze.getStates();
         int mazeWidth = states[0].length;
         int mazeHeight = states.length;
+        mazeGridPane.getColumnConstraints().clear();
+        mazeGridPane.getRowConstraints().clear();
 
         for (int i = 0; i < mazeWidth; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
@@ -95,32 +107,35 @@ public class mazeController implements Initializable {
     public void launchMaze() throws InterruptedException {
         Thread thread = new Thread() {
             public void run() {
-                boolean stop = false;
-
                 ArrayList<Integer> x = new ArrayList<Integer>();
                 ArrayList<Integer> y = new ArrayList<Integer>();
 
                 //keep learning until you decide to stop
-                int numberOfActions = 0;
+                int numberOfTrails = 0;
                 Agent robot = StaticRunMe.robot;
+                robot.reset();
 
-                while (!stop) {
+                while (true) {
                     // Get the current node and set its background back to white
                     Node currentNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
                     currentNode.setStyle("-fx-background-color: white");
 
-                    numberOfActions = StaticRunMe.loop(x, y, numberOfActions);
+                    numberOfTrails = StaticRunMe.loop(x, y, epsilon, alfa, gamma, numberOfTrails);
                     //TODO figure out a stopping criterion
 
                     // Get the current node and set its background back to red to mark the location of the agent
                     Node nextNode = getNodeByRowColumnIndex(robot.getY(), robot.getX(), mazeGridPane);
                     nextNode.setStyle("-fx-background-color: red");
+                    if(numberOfTrails == MAX_TRAILS)
+                        break;
+
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+                System.out.println("\nFinished run with " + numberOfTrails + " steps.");
             }
         };
 
@@ -133,17 +148,29 @@ public class mazeController implements Initializable {
      * Run the agent without gui, which is faster.
      */
     public void noGUI() {
-        boolean stop = false;
+        //Variable to change and plot
 
-        ArrayList<Integer> x = new ArrayList<Integer>();
-        ArrayList<Integer> y = new ArrayList<Integer>();
+        for(double v = 0.0; v <= 1.0; v+=0.1) {
+            v = StaticRunMe.round(v, 1);
+            alfa = v;
+            for (int i = 0; i < 10; i++) {
+                StaticRunMe.init();
+                ArrayList<Integer> x = new ArrayList<Integer>();
+                ArrayList<Integer> y = new ArrayList<Integer>();
 
-        //keep learning until you decide to stop
-        int numberOfActions = 0;
-        Agent robot = StaticRunMe.robot;
+                //keep learning until you decide to stop
+                int numberOfTrails = 0;
+                Agent robot = StaticRunMe.robot;
+                robot.reset();
 
-        while (!stop) {
-            numberOfActions = StaticRunMe.loop(x, y, numberOfActions);
+                while (true) {
+                    numberOfTrails = StaticRunMe.loop(x, y, epsilon, alfa, gamma, numberOfTrails);
+                    if (numberOfTrails == MAX_TRAILS)
+                        break;
+                }
+                System.out.println("");
+            }
+            System.out.println("\n\n\n");
         }
     }
 
