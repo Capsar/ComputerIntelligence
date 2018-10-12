@@ -36,10 +36,12 @@ public class AntColonyOptimization {
      */
     public Route findShortestRoute(PathSpecification spec) {
         maze.reset();
+
         ArrayList<Ant> ants = new ArrayList<>();
 
         for (int i = 0; i < antsPerGen; i++) {
             ants.add(new Ant(maze, spec));
+            ants.get(i).findRoute();
         }
         return null;
     }
@@ -49,14 +51,14 @@ public class AntColonyOptimization {
      */
     public static void main(String[] args) throws FileNotFoundException {
     	//parameters
-    	int gen = 1;
-        int noGen = 1;
+    	int gen = 10;
+        int noGen = 10;
         double Q = 1600;
         double evap = 0.1;
         
         //construct the optimization objects
-        Maze maze = Maze.createMaze("./data/hard maze.txt");
-        PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
+        Maze maze = Maze.createMaze("./data/easy maze.txt");
+        PathSpecification spec = PathSpecification.readCoordinates("./data/easy coordinates.txt");
         AntColonyOptimization aco = new AntColonyOptimization(maze, gen, noGen, Q, evap);
         
         //save starting time
@@ -69,7 +71,7 @@ public class AntColonyOptimization {
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
         
         //save solution
-        shortestRoute.writeToFile("./data/hard_solution.txt");
+        shortestRoute.writeToFile("./data/easy_solution.txt");
         
         //print route size
         System.out.println("Route size: " + shortestRoute.size());

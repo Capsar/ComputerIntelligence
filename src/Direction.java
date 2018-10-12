@@ -45,6 +45,10 @@ public enum Direction {
      * @return an integer from 0-3.
      */
     public static int dirToInt(Direction dir) {
+        if (dir == null) {
+            return -1;
+        }
+
         switch(dir) {
         	case East:
         		return 0;
@@ -56,6 +60,44 @@ public enum Direction {
                 return 3;
             default:
                 throw new IllegalArgumentException("Case statement does not match all possible values");
+        }
+    }
+
+    /**
+     * Int to Direction
+     * @param number
+     * @return
+     */
+    public static Direction intToDir(int number) {
+        switch(number) {
+            case -1:
+                return null;
+            case 0:
+                return Direction.East;
+            case 1:
+                return Direction.North;
+            case 2:
+                return Direction.West;
+            case 3:
+                return Direction.South;
+            default:
+                throw new IllegalArgumentException("Number is not 0-3");
+        }
+    }
+
+    /** Method that checks if two directions are opposite to each other
+     *
+     * @param dir
+     * @return
+     */
+    public boolean isOpposite(Direction dir) {
+        Coordinate vector1 = Direction.dirToCoordinateDelta(this);
+        Coordinate vector2 = Direction.dirToCoordinateDelta(dir);
+
+        if (vector1.getX() + vector2.getX() == 0 && vector1.getY() + vector2.getY() == 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 }
