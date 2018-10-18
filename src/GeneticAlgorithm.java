@@ -27,8 +27,8 @@ public class GeneticAlgorithm {
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
-        int populationSize = 1000;
-        int generations = 100000;
+        int populationSize = 20;
+        int generations = 10;
         String persistFile = "./tmp/productMatrixDist";
 
         //setup optimization
@@ -86,32 +86,88 @@ public class GeneticAlgorithm {
 
             //Sort the genePool according to the fitness list
             QuickSort.quickSort(genePool, fitness);
+            printArrays(fitness, genePool);
 
             //Select the chromosomes with the highest fitness.
             int[][] parents = parent(genePool);
 
             //Fill gene pool with fresh new chromosomes.
-            genePool = createChildren(parents);
+            genePool = fillParents(parents);
+            printArrays(fitness, genePool);
+
+            genePool = createChildren(genePool);
+            printArrays(fitness, genePool);
         }
 
-        printArrays(fitness, genePool);
         return genePool[0];
     }
 
-    private int[][] createChildren(int[][] parents) {
-        int[][] newPopulation = new int[parents.length][parents[0].length];
+    private int[][] createChildren(int[][] genePool) {
+        int[][] newPopulation = new int[genePool.length][genePool[0].length];
 
-        for (int i = 0; i < parents.length; i++) {
-            if(!isEmpty(parents[i])) {
-                newPopulation[i] = parents[i];
+        //Fill in the parents again in the population & safe last parent index.
+        int lastParentIndex = 0;
+        for (int i = 0; i < genePool.length; i++) {
+            if (!isEmpty(genePool[i])) {
+                newPopulation[i] = genePool[i];
+                lastParentIndex = i;
+            }
+        }
+        int j = 0;
+        //Start filling in new children right after the last parent.
+        for(int i = lastParentIndex+1; i < genePool.length; i++) {
+            if(j <= lastParentIndex) {
+                //Start filling with the best parent until genePool is full.
+                newPopulation[i] = mutate(genePool[j]);
+                j++;
             } else {
+                //If genePool is not yet filled but all parents have made children, fill in the rest with random children.
                 newPopulation[i] = newChromosome();
             }
+
         }
 
 
         return newPopulation;
     }
+
+    private int[][] fillParents(int[][] parents) {
+        int[][] newPopulation = new int[parents.length][parents[0].length];
+
+        for (int i = 0; i < parents.length; i++) {
+            if (!isEmpty(parents[i])) {
+                newPopulation[i] = parents[i];
+            } else {
+                break;
+            }
+        }
+        return newPopulation;
+    }
+
+    private int[] mutate(int[] parent) {
+        int[] newChromosome = parent.clone();
+        Random random = new Random();
+        int numberOfSwaps = random.nextInt(5);
+        for (int i = 0; i < numberOfSwaps; i++) {
+            int swap1 = random.nextInt(parent.length);
+            int swap2 = random.nextInt(parent.length);
+            if (swap1 == swap2)
+                i--;
+            else {
+                swap(newChromosome, swap1, swap2);
+            }
+
+        }
+
+        return newChromosome;
+    }
+
+    private void swap(int[] elements, int i1, int i2) {
+        int temp = elements[i1];
+        elements[i1] = elements[i2];
+        elements[i2] = temp;
+    }
+
 
     private int[] newChromosome() {
         int[] solution = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17};
