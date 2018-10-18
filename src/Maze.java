@@ -74,9 +74,9 @@ public class Maze {
      * @param rho evaporation factor
      */
     public void evaporate(double rho) {
-        for (int y = 0; y < pheromones.length;y++) {
-            for (int x = 0; x < pheromones[y].length; x++) {
-                pheromones[x][y] = pheromones[x][y] * rho;
+        for (int y = 0; y < pheromones[0].length; y++) {
+            for (int x = 0; x < pheromones.length; x++) {
+                pheromones[x][y] = pheromones[x][y] * (1 -rho);
             }
         }
     }
@@ -187,5 +187,9 @@ public class Maze {
         } else {
             return false;
         }
+    }
+
+    public void setWall(Coordinate co) {
+        walls[co.getX()][co.getY()] = 0;
     }
 }

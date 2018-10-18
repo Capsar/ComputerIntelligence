@@ -2,6 +2,9 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class representing a route.
@@ -38,10 +41,6 @@ public class Route implements Serializable {
         return route.size();
     }
 
-    /**
-     * Getter for the list of directions
-     * @return list of directions
-     */
     public ArrayList<Direction> getRoute() {
         return route;
     }

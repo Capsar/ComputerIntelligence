@@ -100,4 +100,19 @@ public enum Direction {
             return false;
         }
     }
+
+    public Direction getOpposite() {
+        switch(this) {
+            case East:
+                return West;
+            case North:
+                return South;
+            case West:
+                return East;
+            case South:
+                return North;
+            default:
+                throw new IllegalArgumentException("Case statement does not match all possible values");
+        }
+    }
 }

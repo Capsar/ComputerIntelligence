@@ -23,7 +23,7 @@ public class AntTest {
             ant.setCurrentPosition(new Coordinate(16, 3));
             ant.setPreviousDirection(Direction.South);
 
-            ArrayList<Direction> directions = ant.getPossibleDirections();
+            ArrayList<Direction> directions = ant.getPossibleDirections(true);
 
             assertEquals(3, directions.size());
 
@@ -48,14 +48,52 @@ public class AntTest {
             ant.setCurrentPosition(new Coordinate(24, 14));
             ant.setPreviousDirection(Direction.South);
 
-            ArrayList<Direction> directions = ant.getPossibleDirections();
+            ArrayList<Direction> directions = ant.getPossibleDirections(true);
 
-            assertEquals(1, directions.size());
-
-            assertTrue(directions.contains(Direction.North));
+            assertEquals(0, directions.size());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Test
+    public void dead_end_handler() {
+        try {
+            Maze maze = Maze.createMaze("./testMazes/dead end maze.txt");
+            PathSpecification spec = PathSpecification.readCoordinates("./testMazes/dead end coordinates.txt");
+
+            Ant ant = new Ant(maze, spec);
+
+            ant.setCurrentPosition(new Coordinate(0, 0));
+            assertEquals(true, ant.getMaze().isPath(new Coordinate(1, 2)));
+
+            ant.takeStep(Direction.South);
+            ant.takeStep(Direction.South);
+            ant.takeStep(Direction.East);
+            ant.takeStep(Direction.East);
+            ant.takeStep(Direction.East);
+
+            System.out.println("cp: " + ant.getCurrentPosition());
+
+            assertEquals(5, ant.getRoute().size());
+            ant.deadEndHandler(Direction.West);
+            assertEquals(0, ant.getCurrentPosition().getX());
+            assertEquals(2, ant.getCurrentPosition().getY());
+            assertEquals(2, ant.getRoute().size());
+            ant.takeStep(Direction.South);
+            ant.takeStep(Direction.South);
+            assertEquals(4, ant.getRoute().size());
+            assertEquals(false, ant.getMaze().isPath(new Coordinate(1, 2)));
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void loop_handler() {
 
     }
 }
