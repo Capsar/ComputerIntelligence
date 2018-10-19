@@ -218,7 +218,7 @@ public class Ant {
     }
 
     public void deadEndHandler(Direction directionToTake) {
-        System.out.println("dead end at: " + currentPosition);
+//        System.out.println("dead end at: " + currentPosition);
         visitedCoordinates.remove(currentPosition);
         currentPosition = currentPosition.add(directionToTake);
         previousDirection = directionToTake;

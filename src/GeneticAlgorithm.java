@@ -113,10 +113,10 @@ public class GeneticAlgorithm {
         }
         int j = 0;
         //Start filling in new children right after the last parent.
-        for(int i = lastParentIndex+1; i < genePool.length; i++) {
-            if(j <= lastParentIndex) {
+        for (int i = lastParentIndex + 1; i < genePool.length; i++) {
+            if (j <= lastParentIndex) {
                 //Start filling with the best parent until genePool is full.
-                newPopulation[i] = mutate(genePool[j]);
+                newPopulation[i] = mutate1(genePool[j], new Random().nextInt(5));
                 j++;
             } else {
                 //If genePool is not yet filled but all parents have made children, fill in the rest with random children.
@@ -142,10 +142,9 @@ public class GeneticAlgorithm {
         return newPopulation;
     }
 
-    private int[] mutate(int[] parent) {
+    private int[] mutate1(int[] parent, int numberOfSwaps) {
         int[] newChromosome = parent.clone();
         Random random = new Random();
-        int numberOfSwaps = random.nextInt(5);
         for (int i = 0; i < numberOfSwaps; i++) {
             int swap1 = random.nextInt(parent.length);
             int swap2 = random.nextInt(parent.length);
@@ -159,6 +158,22 @@ public class GeneticAlgorithm {
 
         return newChromosome;
     }
+
+    private int[] mutate2(int[] parent, int numberOfSwaps) {
+        int[] newChromosome = parent.clone();
+        Random random = new Random();
+        for (int i = 0; i < numberOfSwaps; i++) {
+            int swap1 = 1 + random.nextInt(parent.length - 1);
+            int swap2 = swap1 - 1;
+            swap(newChromosome, swap1, swap2);
+        }
+        return newChromosome;
+    }
+
+    private int[] mutate3() {
+        return newChromosome();
+    }
+
 
     private void swap(int[] elements, int i1, int i2) {
         int temp = elements[i1];
