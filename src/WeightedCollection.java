@@ -17,6 +17,7 @@ public class WeightedCollection {
         this.random = new Random();
         directions = new ArrayList<>();
         probabilities = new ArrayList<>();
+        totalProbability = 0;
     }
 
     public void add(Direction dir, double probability) {
@@ -39,6 +40,10 @@ public class WeightedCollection {
         }
 
         return currentSelection;
+    }
+
+    public int size() {
+        return directions.size();
     }
 
     public void reset() {

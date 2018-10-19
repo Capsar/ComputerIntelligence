@@ -21,4 +21,20 @@ public class CoordinateTest {
 
         assertEquals(Math.sqrt(72), co1.getEuclidianDistance(co2));
     }
+
+    @Test
+    public void get_euclidian_distance_same_coordinate() {
+        Coordinate co1 = new Coordinate(8, 9);
+        Coordinate co2 = new Coordinate(8, 9);
+
+        assertEquals(0, co1.getEuclidianDistance(co2));
+    }
+
+    @Test
+    public void get_euclidian_distance_diagonal_oneStep() {
+        Coordinate co1 = new Coordinate(7, 8);
+        Coordinate co2 = new Coordinate(8, 9);
+
+        assertEquals(Math.sqrt(2), co1.getEuclidianDistance(co2));
+    }
 }
