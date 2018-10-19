@@ -104,7 +104,7 @@ public class AntTest {
             ant.setCurrentPosition(new Coordinate(0, 0));
 
             assertEquals(2, ant.getPossibleDirections(false).size());
-            double[] factors = ant.getEuclidianFactors(ant.getPossibleDirections(false));
+            double[] factors = ant.getEuclidianProbabilities(ant.getPossibleDirections(false));
 
             double eucDist1 = Math.sqrt(725);
             double eucDist2 = Math.sqrt(745);
@@ -133,7 +133,7 @@ public class AntTest {
             ant.takeStep(Direction.South);
 
             assertEquals(3, ant.getPossibleDirections(true).size());
-            double[] factors = ant.getEuclidianFactors(ant.getPossibleDirections(true));
+            double[] factors = ant.getEuclidianProbabilities(ant.getPossibleDirections(true));
 
             double eucDist1 = Math.sqrt(5);
             double eucDist2 = Math.sqrt(5);

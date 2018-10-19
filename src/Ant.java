@@ -18,7 +18,7 @@ public class Ant {
     private Direction previousDirection;
     private ArrayList<Coordinate> visitedCoordinates;
     private Route route;
-    private HashMap<Coordinate, Boolean> exploredCoordinates;
+    private ArrayList<Coordinate> backtrackedCoordinates;
 
     /**
      * Constructor for ant taking a Maze and PathSpecification.
@@ -36,7 +36,7 @@ public class Ant {
         weightedPossibleDirections = new WeightedCollection();
         visitedCoordinates = new ArrayList<>();
         route = new Route(start);
-        exploredCoordinates = new HashMap<>();
+        backtrackedCoordinates = new ArrayList<>();
     }
 
     public void setCurrentPosition(Coordinate currentPosition) {
@@ -150,9 +150,10 @@ public class Ant {
 
     /**
      * Update the list of weighted probabilities by adding all the possible directions with their relative probabilities.
-     *
+     * @param possibleDirections the directions that are possible to take
+     * @param usePheromones boolean that determines if the possibilities need to be based on the amount of pheromones
      */
-    public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean random) {
+    public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean usePheromones) {
         // Take the only choice possible if there is one possible direction
         if (possibleDirections.size() == 1) {
             possibleDirections.get(0);
@@ -170,17 +171,17 @@ public class Ant {
             totalPheromone += pheromone;
 
             if (pheromone == 0) {
-                random = true;
+                usePheromones = false;
             }
         }
 
         // Take a random direction if there is no pheromone on any of the directions
         if (totalPheromone == 0) {
-            random = true;
+            usePheromones = false;
         }
 
-        if (random) {
-            double[] probabilities = getEuclidianFactors(possibleDirections);
+        if (!usePheromones) {
+            double[] probabilities = getEuclidianProbabilities(possibleDirections);
             for (int i = 0; i < possibleDirections.size(); i++) {
                 weightedPossibleDirections.add(possibleDirections.get(i), probabilities[i]);
             }
@@ -193,7 +194,12 @@ public class Ant {
         }
     }
 
-    public double[] getEuclidianFactors(ArrayList<Direction> possibleDirections) {
+    /**
+     * Get the probabilitiy for each direction based on the euclidian distance to the end point.
+     * @param possibleDirections the possible directions that where probabilities need to be found for
+     * @return an array containing the probabilities of the possible directions
+     */
+    public double[] getEuclidianProbabilities(ArrayList<Direction> possibleDirections) {
         double[] factors = new double[possibleDirections.size()];
 
         // Calculate the combined distance of all options
@@ -256,7 +262,7 @@ public class Ant {
     }
 
     /**
-     * Handler for when a loop is encountered.
+     * Handler for when a loop is encountered, steps are taken back along the route and removed.
      */
     public void loopHandler() {
         Coordinate startOfLoop = currentPosition;
@@ -266,6 +272,7 @@ public class Ant {
         Direction lastDirection = route.removeLast();
         currentPosition = currentPosition.subtract(lastDirection);
 
+        // Remove the last step from the route and take the step back until the ant is at the start of the loop
         while (!currentPosition.equals(startOfLoop)) {
             visitedCoordinates.remove(currentPosition);
             lastDirection = route.removeLast();
@@ -274,19 +281,15 @@ public class Ant {
 
         addVisitedCoordinate(currentPosition);
 
-        // Check if the ant is back at the start
-        if (route.size() == 0) {
-            chooseFirstDirectionRandom();
-        } else {
-            // Set the previous direction to the last taken direction before the loop
+        if (route.size() > 0) {
             previousDirection = route.getRoute().get(route.getRoute().size() - 1).getOpposite();
         }
         //System.out.println("returned from loop");
     }
 
     /**
-     * Handler for when a dead end is encountered
-     * @param directionToTake
+     * Handler for when a dead end is encountered.
+     * @param directionToTake the direction to take to get out of the dead end
      */
     public void deadEndHandler(Direction directionToTake) {
         visitedCoordinates.remove(currentPosition);
