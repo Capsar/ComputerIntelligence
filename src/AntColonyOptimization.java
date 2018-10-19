@@ -36,12 +36,34 @@ public class AntColonyOptimization {
      */
     public Route findShortestRoute(PathSpecification spec) {
         maze.reset();
-        ArrayList<Ant> ants = new ArrayList<>();
 
-        for (int i = 0; i < antsPerGen; i++) {
-            ants.add(new Ant(maze, spec));
+        ArrayList<Route> routes = new ArrayList<>();
+
+        for (int gen = 0; gen < generations; gen++) {
+            System.out.println("starting gen: " + gen);
+            for (int i = 0; i < antsPerGen; i++) {
+                System.out.println("starting ant " + i);
+                Ant currentAnt = new Ant(maze, spec);
+                Route route = currentAnt.findRoute();
+                routes.add(route);
+            }
+
+            maze.evaporate(evaporation);
+
+            maze.addPheromoneRoutes(routes, Q);
         }
-        return null;
+
+        System.out.println("finished all gens");
+
+        Route fastestRoute = routes.get(0);
+
+        for (int i = 0; i < routes.size(); i++) {
+            if (routes.get(i).shorterThan(fastestRoute)) {
+                fastestRoute = routes.get(i);
+            }
+        }
+
+        return fastestRoute;
     }
 
     /**
@@ -49,15 +71,15 @@ public class AntColonyOptimization {
      */
     public static void main(String[] args) throws FileNotFoundException {
     	//parameters
-    	int gen = 1;
-        int noGen = 1;
+    	int ants = 10;
+        int noGen = 100;
         double Q = 1600;
         double evap = 0.1;
         
         //construct the optimization objects
-        Maze maze = Maze.createMaze("./data/hard maze.txt");
-        PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
-        AntColonyOptimization aco = new AntColonyOptimization(maze, gen, noGen, Q, evap);
+        Maze maze = Maze.createMaze("./data/medium maze.txt");
+        PathSpecification spec = PathSpecification.readCoordinates("./data/medium coordinates.txt");
+        AntColonyOptimization aco = new AntColonyOptimization(maze, ants, noGen, Q, evap);
         
         //save starting time
         long startTime = System.currentTimeMillis();
@@ -69,7 +91,7 @@ public class AntColonyOptimization {
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
         
         //save solution
-        shortestRoute.writeToFile("./data/hard_solution.txt");
+        shortestRoute.writeToFile("./data/medium_solution.txt");
         
         //print route size
         System.out.println("Route size: " + shortestRoute.size());

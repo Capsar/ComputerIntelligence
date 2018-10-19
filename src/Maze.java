@@ -33,12 +33,6 @@ public class Maze {
      */
     private void initializePheromones() {
         pheromones = new double[width][length];
-
-        for (int i = 0; i < pheromones.length; i++) {
-            for (int j = 0; j < pheromones[0].length; j++) {
-                pheromones[j][i] = 0;
-            }
-        }
     }
 
     /**
@@ -50,10 +44,19 @@ public class Maze {
 
     /**
      * Update the pheromones along a certain route according to a certain Q
-     * @param r The route of the ants
+     * @param route The route of the ants
      * @param Q Normalization factor for amount of dropped pheromone
      */
-    public void addPheromoneRoute(Route r, double Q) {}
+    public void addPheromoneRoute(Route route, double Q) {
+        double pheromonePerCoordinate = Q / (route.size() + 1);
+        Coordinate currentLoc = route.getStart();
+        pheromones[currentLoc.getX()][currentLoc.getY()] = pheromonePerCoordinate;
+
+        for (Direction dir: route.getRoute()) {
+            currentLoc = currentLoc.add(dir);
+            pheromones[currentLoc.getX()][currentLoc.getY()] = pheromonePerCoordinate;
+        }
+    }
 
     /**
      * Update pheromones for a list of routes
@@ -70,7 +73,13 @@ public class Maze {
      * Evaporate pheromone
      * @param rho evaporation factor
      */
-    public void evaporate(double rho) {}
+    public void evaporate(double rho) {
+        for (int y = 0; y < pheromones[0].length; y++) {
+            for (int x = 0; x < pheromones.length; x++) {
+                pheromones[x][y] = pheromones[x][y] * (1 -rho);
+            }
+        }
+    }
 
     /**
      * Width getter
@@ -95,7 +104,14 @@ public class Maze {
      * @return the pheromones of the neighbouring positions.
      */
     public SurroundingPheromone getSurroundingPheromone(Coordinate position) {
-        return null;
+        double[] pheromones = new double[4];
+
+        for (int i = 0; i < 4; i++) {
+            Coordinate co = position.add(Direction.intToDir(i));
+            pheromones[i] = getPheromone(co);
+        }
+
+        return new SurroundingPheromone(pheromones[1], pheromones[3], pheromones[2], pheromones[0]);
     }
 
     /**
@@ -104,7 +120,11 @@ public class Maze {
      * @return pheromone at point
      */
     private double getPheromone(Coordinate pos) {
-        return 0;
+        if (inBounds(pos)) {
+            return pheromones[pos.getX()][pos.getY()];
+        } else {
+            return 0;
+        }
     }
 
 
@@ -113,7 +133,7 @@ public class Maze {
      * @param position The position to be checked
      * @return Whether the position is in the current maze
      */
-    private boolean inBounds(Coordinate position) {
+    public boolean inBounds(Coordinate position) {
         return position.xBetween(0, width) && position.yBetween(0, length);
     }
 
@@ -138,7 +158,7 @@ public class Maze {
     }
 
     /**
-     * Method that builds a mze from a file
+     * Method that builds a mze from a file.
      * @param filePath Path to the file
      * @return A maze object with pheromones initialized to 0's inaccessible and 1's accessible.
      */
@@ -154,5 +174,22 @@ public class Maze {
         }
         scan.close();
         return new Maze(mazeLayout, width, length);
+    }
+
+    /**
+     * Method that checks if a coordinate is a path.
+     * @param coordinate coordinate to be checked
+     * @return boolean
+     */
+    public boolean isPath(Coordinate coordinate) {
+        if (inBounds(coordinate) && walls[coordinate.getX()][coordinate.getY()] == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setWall(Coordinate co) {
+        walls[co.getX()][co.getY()] = 0;
     }
 }

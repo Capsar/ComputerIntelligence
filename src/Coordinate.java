@@ -48,7 +48,7 @@ public class Coordinate implements Serializable {
 
     /**
      * Move in a inverted direction from this coordinate
-     * @param Direction of unit move
+     * @param dir Direction of unit move
      * @return result the new coordinate
      */
     public Coordinate subtract(Direction dir) {
@@ -75,6 +75,13 @@ public class Coordinate implements Serializable {
             Coordinate otherC = (Coordinate) other;
             return this.x == otherC.x && this.y == otherC.y;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 
     /**
@@ -111,5 +118,11 @@ public class Coordinate implements Serializable {
      */
     public int getY() {
         return y;
+    }
+
+    public double getEuclidianDistance(Coordinate co2) {
+        double distance = Math.sqrt(Math.pow(this.getX() - co2.getX(), 2) + Math.pow(this.getY() - co2.getY(), 2));
+
+        return Math.abs(distance);
     }
 }
