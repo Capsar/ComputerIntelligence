@@ -192,4 +192,8 @@ public class Maze {
     public void setWall(Coordinate co) {
         walls[co.getX()][co.getY()] = 0;
     }
+
+    public double getDiameter() {
+        return Math.sqrt(Math.pow(width, 2) + Math.pow(length, 2));
+    }
 }

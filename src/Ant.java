@@ -59,11 +59,23 @@ public class Ant {
         return maze;
     }
 
+    public Coordinate getStart() {
+        return start;
+    }
+
+    public Coordinate getEnd() {
+        return end;
+    }
+
     /**
      * Method that performs a single run through the maze by the ant.
      * @return The route the ant found through the maze.
      */
     public Route findRoute() {
+        if (start.equals(end)) {
+            return route;
+        }
+
         addVisitedCoordinate(start);
 
         Direction dir = chooseFirstDirectionRandom();
@@ -104,6 +116,10 @@ public class Ant {
         return route;
     }
 
+    /**
+     * Adds a coordinate to the visited list if its a crossroad.
+     * @param coordinate the coordinate to be added
+     */
     public void addVisitedCoordinate(Coordinate coordinate) {
         if (getPossibleDirections(true).size() > 1) {
             visitedCoordinates.add(coordinate);
@@ -111,6 +127,8 @@ public class Ant {
     }
 
     public void takeStep(Direction dir) {
+        //System.out.println("cp:" + currentPosition);
+        //System.out.println("dir: " + dir);
         currentPosition = currentPosition.add(dir);
 
         route.add(dir);
@@ -135,6 +153,11 @@ public class Ant {
      *
      */
     public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean random) {
+        // Take the only choice possible if there is one possible direction
+        if (possibleDirections.size() == 1) {
+            possibleDirections.get(0);
+        }
+
         SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
 
         // Reset the possible directions and add the new directions with their probabilities
@@ -156,18 +179,59 @@ public class Ant {
             random = true;
         }
 
-        for (Direction dir : possibleDirections) {
-            double probability;
-            if (random) {
-
-                probability = 1.0 / possibleDirections.size();
-            } else {
-                probability = surroundingPheromone.get(dir) / totalPheromone;
+        if (random) {
+            double[] probabilities = getEuclidianFactors(possibleDirections);
+            for (int i = 0; i < possibleDirections.size(); i++) {
+                weightedPossibleDirections.add(possibleDirections.get(i), probabilities[i]);
             }
-            weightedPossibleDirections.add(dir, probability);
+        } else {
+            for (Direction dir : possibleDirections) {
+                double probability;
+                probability = surroundingPheromone.get(dir) / totalPheromone;
+                weightedPossibleDirections.add(dir, probability);
+            }
         }
     }
 
+    public double[] getEuclidianFactors(ArrayList<Direction> possibleDirections) {
+        double[] factors = new double[possibleDirections.size()];
+
+        // Calculate the combined distance of all options
+        double totalDist = 0;
+        for (int i = 0; i < possibleDirections.size(); i++) {
+            double eucDist = currentPosition.add(possibleDirections.get(i)).getEuclidianDistance(end);
+
+            // Check if a direction brings the ant to the goal
+            if (eucDist == 0) {
+                factors = new double[factors.length];
+                for (int j = 0; j < factors.length; j++) {
+                    if (j == i) {
+                        factors[j] = 1;
+                    } else {
+                        factors[j] = 0;
+                    }
+                }
+                return factors;
+            } else {
+                totalDist += eucDist;
+            }
+        }
+
+        // Calculate the factors
+        double totalFactors = 0;
+        for (int i = 0; i < factors.length; i++) {
+            double factor = totalDist / currentPosition.add(possibleDirections.get(i)).getEuclidianDistance(end);
+            factors[i] = factor;
+            totalFactors += factor;
+        }
+
+        // Normalize factors
+        for (int i = 0; i < factors.length; i++) {
+            factors[i] = factors[i] / totalFactors;
+        }
+
+        return factors;
+    }
     /**
      * Method that checks all the possible directions that are not the previous direction and don't end up in a wall our outside the maze.
      * (if there are no valid directions we take a step back to the previous position by taking the opposite direction of the last direction)
@@ -191,6 +255,9 @@ public class Ant {
         return possibleDirections;
     }
 
+    /**
+     * Handler for when a loop is encountered.
+     */
     public void loopHandler() {
         Coordinate startOfLoop = currentPosition;
 
@@ -217,8 +284,11 @@ public class Ant {
         //System.out.println("returned from loop");
     }
 
+    /**
+     * Handler for when a dead end is encountered
+     * @param directionToTake
+     */
     public void deadEndHandler(Direction directionToTake) {
-//        System.out.println("dead end at: " + currentPosition);
         visitedCoordinates.remove(currentPosition);
         currentPosition = currentPosition.add(directionToTake);
         previousDirection = directionToTake;

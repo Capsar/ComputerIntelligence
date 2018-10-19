@@ -93,7 +93,61 @@ public class AntTest {
     }
 
     @Test
-    public void loop_handler() {
+    public void get_euclidian_factors() {
+        try {
+            Maze maze = Maze.createMaze("./data/easy maze.txt");
 
+            PathSpecification spec = PathSpecification.readCoordinates("./data/easy coordinates.txt");
+
+            Ant ant = new Ant(maze, spec);
+
+            ant.setCurrentPosition(new Coordinate(0, 0));
+
+            assertEquals(2, ant.getPossibleDirections(false).size());
+            double[] factors = ant.getEuclidianFactors(ant.getPossibleDirections(false));
+
+            double eucDist1 = Math.sqrt(725);
+            double eucDist2 = Math.sqrt(745);
+            double totalDist = eucDist1 + eucDist2;
+            double totalFactors = totalDist / eucDist1 + totalDist / eucDist2;
+
+            assertEquals(2, factors.length);
+
+            assertEquals(totalDist / eucDist1 / totalFactors, factors[0]);
+            assertEquals(totalDist / eucDist2 / totalFactors, factors[1]);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void get_euclidian_factors2() {
+        try {
+            Maze maze = Maze.createMaze("./data/medium maze.txt");
+
+            PathSpecification spec = PathSpecification.readCoordinates("./data/medium coordinates.txt");
+
+            Ant ant = new Ant(maze, spec);
+
+            ant.setCurrentPosition(new Coordinate(41, 20));
+            ant.takeStep(Direction.South);
+
+            assertEquals(3, ant.getPossibleDirections(true).size());
+            double[] factors = ant.getEuclidianFactors(ant.getPossibleDirections(true));
+
+            double eucDist1 = Math.sqrt(5);
+            double eucDist2 = Math.sqrt(5);
+            double eucDist3 = 1;
+            double totalDist = eucDist1 + eucDist2 + eucDist3;
+            double totalFactors = totalDist / eucDist1 + totalDist / eucDist2 + totalDist / eucDist3;
+
+            assertEquals(3, factors.length);
+
+            assertEquals(0, factors[0]);
+            assertEquals(0, factors[1]);
+            assertEquals(1, factors[2]);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
