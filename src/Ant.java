@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -88,7 +87,11 @@ public class Ant {
 
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
+        long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
+            if(System.currentTimeMillis() - begin > 20000)
+                System.out.println(this.currentPosition);
+
             if (possibleDirections.size() == 0) {
                 deadEndHandler(previousDirection.getOpposite());
                 possibleDirections = getPossibleDirections(true);
