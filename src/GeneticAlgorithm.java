@@ -86,18 +86,16 @@ public class GeneticAlgorithm {
 
             //Sort the genePool according to the fitness list
             QuickSort.quickSort(genePool, fitness);
-            printArrays(fitness, genePool);
 
             //Select the chromosomes with the highest fitness.
             int[][] parents = parent(genePool);
 
             //Fill gene pool with fresh new chromosomes.
             genePool = fillParents(parents);
-            printArrays(fitness, genePool);
 
             genePool = createChildren(genePool);
-            printArrays(fitness, genePool);
         }
+        printArrays(fitness, genePool);
 
         return genePool[0];
     }
