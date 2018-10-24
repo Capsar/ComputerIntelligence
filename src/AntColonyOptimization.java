@@ -42,7 +42,7 @@ public class AntColonyOptimization {
         for (int gen = 0; gen < generations; gen++) {
             System.out.println("starting gen: " + gen);
             for (int i = 0; i < antsPerGen; i++) {
-                System.out.println("starting ant " + i);
+                //System.out.println("starting ant " + i);
                 Ant currentAnt = new Ant(maze, spec);
                 Route route = currentAnt.findRoute();
                 routes.add(route);
@@ -53,15 +53,15 @@ public class AntColonyOptimization {
             maze.addPheromoneRoutes(routes, Q);
         }
 
-        System.out.println("finished all gens");
-
+        // Find the fastest route in the list of routes
         Route fastestRoute = routes.get(0);
-
         for (int i = 0; i < routes.size(); i++) {
             if (routes.get(i).shorterThan(fastestRoute)) {
                 fastestRoute = routes.get(i);
             }
         }
+
+        System.out.println("finished all gens with fastest route of length: " + fastestRoute.size());
 
         return fastestRoute;
     }

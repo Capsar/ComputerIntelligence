@@ -112,7 +112,7 @@ public class Ant {
             possibleDirections = getPossibleDirections(true);
         }
 
-        System.out.println("found a route of length: " + route.size());
+        //System.out.println("found a route of length: " + route.size());
 
         return route;
     }
@@ -282,6 +282,6 @@ public class Ant {
             possibleDirections = getPossibleDirections(true);
         }
 
-        maze.setWall(currentPosition.add(previousDirection));
+        //maze.setWall(currentPosition.add(previousDirection));
     }
 }
