@@ -77,8 +77,8 @@ public class AntColonyOptimization {
         double evap = 0.1;
         
         //construct the optimization objects
-        Maze maze = Maze.createMaze("./data/insane maze.txt");
-        PathSpecification spec = PathSpecification.readCoordinates("./data/insane coordinates.txt");
+        Maze maze = Maze.createMaze("./data/hard maze.txt");
+        PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
         AntColonyOptimization aco = new AntColonyOptimization(maze, ants, noGen, Q, evap);
         
         //save starting time
