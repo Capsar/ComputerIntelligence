@@ -89,16 +89,16 @@ public class Ant {
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
-            if(System.currentTimeMillis() - begin > 20000) {
+            if(System.currentTimeMillis() - begin > 10000) {
                 System.out.println(currentPosition);
             }
 
             if (possibleDirections.size() == 0) {
-                deadEndHandler(previousDirection.getOpposite());
+                deadEndHandler();
                 possibleDirections = getPossibleDirections(true);
             }
 
-            updateDirectionProbabilities(possibleDirections, false);
+            updateDirectionProbabilities(possibleDirections, true);
             dir = weightedPossibleDirections.get();
 
             takeStep(dir);
@@ -131,8 +131,6 @@ public class Ant {
     }
 
     public void takeStep(Direction dir) {
-        //System.out.println("cp:" + currentPosition);
-        //System.out.println("dir: " + dir);
         currentPosition = currentPosition.add(dir);
 
         route.add(dir);
@@ -284,35 +282,22 @@ public class Ant {
         }
 
         addVisitedCoordinate(currentPosition);
-
-        //if (route.size() > 0) {
-        //    previousDirection = route.getRoute().get(route.getRoute().size() - 1).getOpposite();
-        //}
-        //System.out.println("returned from loop");
     }
 
     /**
      * Handler for when a dead end is encountered.
-     * @param directionToTake the direction to take to get out of the dead end
      */
-    public void deadEndHandler(Direction directionToTake) {
-        visitedCoordinates.remove(currentPosition);
-        currentPosition = currentPosition.add(directionToTake);
-        previousDirection = directionToTake;
-        //System.out.println(route.size());
-        route.removeLast();
-
+    public void deadEndHandler() {
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
         while(possibleDirections.size() < 2) {
             visitedCoordinates.remove(currentPosition);
-            currentPosition = currentPosition.add(possibleDirections.get(0));
-            previousDirection = possibleDirections.get(0);
-            route.removeLast();
+            previousDirection = route.removeLast();
+            currentPosition = currentPosition.subtract(previousDirection);
 
             possibleDirections = getPossibleDirections(true);
         }
 
-        maze.setWall(currentPosition.subtract(previousDirection));
+        maze.setWall(currentPosition.add(previousDirection));
     }
 }
