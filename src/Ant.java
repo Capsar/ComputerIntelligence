@@ -95,7 +95,7 @@ public class Ant {
 
             if (possibleDirections.size() == 0) {
                 deadEndHandler();
-                possibleDirections = getPossibleDirections(true);
+                possibleDirections = getPossibleDirections(false);
             }
 
             updateDirectionProbabilities(possibleDirections, true);
@@ -106,13 +106,10 @@ public class Ant {
             // Check if there is a loop
             if (visitedCoordinates.contains(currentPosition)) {
                 loopHandler();
-
-                possibleDirections = getPossibleDirections(true);
-            } else {
-                addVisitedCoordinate(currentPosition);
-                possibleDirections = getPossibleDirections(true);
             }
-            //System.out.println("cp: " + currentPosition);
+
+            addVisitedCoordinate(currentPosition);
+            possibleDirections = getPossibleDirections(true);
         }
 
         System.out.println("found a route of length: " + route.size());
@@ -156,11 +153,6 @@ public class Ant {
      * @param usePheromones boolean that determines if the possibilities need to be based on the amount of pheromones
      */
     public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean usePheromones) {
-        // Take the only choice possible if there is one possible direction
-        if (possibleDirections.size() == 1) {
-            possibleDirections.get(0);
-        }
-
         SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
 
         // Reset the possible directions and add the new directions with their probabilities
@@ -175,11 +167,6 @@ public class Ant {
             if (pheromone == 0) {
                 usePheromones = false;
             }
-        }
-
-        // Take a random direction if there is no pheromone on any of the directions
-        if (totalPheromone == 0) {
-            usePheromones = false;
         }
 
         if (!usePheromones) {
@@ -269,19 +256,16 @@ public class Ant {
     public void loopHandler() {
         Coordinate startOfLoop = currentPosition;
 
-        visitedCoordinates.remove(currentPosition);
-
-        Direction lastDirection = route.removeLast();
-        currentPosition = currentPosition.subtract(lastDirection);
-
         // Remove the last step from the route and take the step back until the ant is at the start of the loop
-        while (!currentPosition.equals(startOfLoop)) {
+        do  {
             visitedCoordinates.remove(currentPosition);
-            lastDirection = route.removeLast();
+            Direction lastDirection = route.removeLast();
             currentPosition = currentPosition.subtract(lastDirection);
-        }
+        } while (!currentPosition.equals(startOfLoop));
+    }
 
-        addVisitedCoordinate(currentPosition);
+    public void adjacentHandler() {
+
     }
 
     /**
