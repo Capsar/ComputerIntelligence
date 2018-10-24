@@ -106,8 +106,8 @@ public class Ant {
             // Check if there is a loop
             if (visitedCoordinates.contains(currentPosition)) {
                 loopHandler();
-                possibleDirections = new ArrayList<>();
-                possibleDirections.add(chooseFirstDirectionRandom());
+
+                possibleDirections = getPossibleDirections(true);
             } else {
                 addVisitedCoordinate(currentPosition);
                 possibleDirections = getPossibleDirections(true);
