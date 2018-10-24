@@ -89,8 +89,9 @@ public class Ant {
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
-            if(System.currentTimeMillis() - begin > 20000)
-                System.out.println(this.currentPosition);
+            if(System.currentTimeMillis() - begin > 20000) {
+                System.out.println(currentPosition);
+            }
 
             if (possibleDirections.size() == 0) {
                 deadEndHandler(previousDirection.getOpposite());
@@ -284,9 +285,9 @@ public class Ant {
 
         addVisitedCoordinate(currentPosition);
 
-        if (route.size() > 0) {
-            previousDirection = route.getRoute().get(route.getRoute().size() - 1).getOpposite();
-        }
+        //if (route.size() > 0) {
+        //    previousDirection = route.getRoute().get(route.getRoute().size() - 1).getOpposite();
+        //}
         //System.out.println("returned from loop");
     }
 

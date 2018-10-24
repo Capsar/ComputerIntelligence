@@ -38,8 +38,8 @@ public class TSPData implements Serializable {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         //parameters
-        int numberOfAnts = 1;
-        int numberOfGenerations = 1;
+        int numberOfAnts = 20;
+        int numberOfGenerations = 20;
         double Q = 1600;
         double evap = 0.1;
         String persistFile = "./tmp/productMatrixDist";

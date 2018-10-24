@@ -91,7 +91,7 @@ public class AntColonyOptimization {
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
         
         //save solution
-        shortestRoute.writeToFile("./data/medium_solution.txt");
+        shortestRoute.writeToFile("./data/hard_solution.txt");
         
         //print route size
         System.out.println("Route size: " + shortestRoute.size());
