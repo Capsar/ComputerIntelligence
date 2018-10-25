@@ -77,7 +77,7 @@ public class AntTest {
             System.out.println("cp: " + ant.getCurrentPosition());
 
             assertEquals(5, ant.getRoute().size());
-            ant.deadEndHandler(Direction.West);
+            ant.deadEndHandler();
             assertEquals(0, ant.getCurrentPosition().getX());
             assertEquals(2, ant.getCurrentPosition().getY());
             assertEquals(2, ant.getRoute().size());

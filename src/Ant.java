@@ -74,31 +74,29 @@ public class Ant {
         if (start.equals(end)) {
             return route;
         }
-
         addVisitedCoordinate(start);
 
         Direction dir = chooseFirstDirectionRandom();
         currentPosition = currentPosition.add(dir);
+        previousDirection = dir;
 
         route.add(dir);
         addVisitedCoordinate(currentPosition);
-
-        previousDirection = dir;
 
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
-            if(System.currentTimeMillis() - begin > 20000) {
+            if(System.currentTimeMillis() - begin > 10000) {
                 System.out.println(currentPosition);
             }
 
             if (possibleDirections.size() == 0) {
-                deadEndHandler(previousDirection.getOpposite());
-                possibleDirections = getPossibleDirections(true);
+                deadEndHandler();
+                possibleDirections = getPossibleDirections(false);
             }
 
-            updateDirectionProbabilities(possibleDirections, false);
+            updateDirectionProbabilities(possibleDirections, true);
             dir = weightedPossibleDirections.get();
 
             takeStep(dir);
@@ -106,16 +104,13 @@ public class Ant {
             // Check if there is a loop
             if (visitedCoordinates.contains(currentPosition)) {
                 loopHandler();
-
-                possibleDirections = getPossibleDirections(true);
-            } else {
-                addVisitedCoordinate(currentPosition);
-                possibleDirections = getPossibleDirections(true);
             }
-            //System.out.println("cp: " + currentPosition);
+
+            addVisitedCoordinate(currentPosition);
+            possibleDirections = getPossibleDirections(true);
         }
 
-        System.out.println("found a route of length: " + route.size());
+        //System.out.println("found a route of length: " + route.size());
 
         return route;
     }
@@ -127,12 +122,13 @@ public class Ant {
     public void addVisitedCoordinate(Coordinate coordinate) {
         if (getPossibleDirections(true).size() > 1) {
             visitedCoordinates.add(coordinate);
+            if (coordinate.equals(new Coordinate(75, 73))) {
+                System.out.println("added test");
+            }
         }
     }
 
     public void takeStep(Direction dir) {
-        //System.out.println("cp:" + currentPosition);
-        //System.out.println("dir: " + dir);
         currentPosition = currentPosition.add(dir);
 
         route.add(dir);
@@ -158,11 +154,6 @@ public class Ant {
      * @param usePheromones boolean that determines if the possibilities need to be based on the amount of pheromones
      */
     public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean usePheromones) {
-        // Take the only choice possible if there is one possible direction
-        if (possibleDirections.size() == 1) {
-            possibleDirections.get(0);
-        }
-
         SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
 
         // Reset the possible directions and add the new directions with their probabilities
@@ -177,11 +168,6 @@ public class Ant {
             if (pheromone == 0) {
                 usePheromones = false;
             }
-        }
-
-        // Take a random direction if there is no pheromone on any of the directions
-        if (totalPheromone == 0) {
-            usePheromones = false;
         }
 
         if (!usePheromones) {
@@ -271,48 +257,32 @@ public class Ant {
     public void loopHandler() {
         Coordinate startOfLoop = currentPosition;
 
-        visitedCoordinates.remove(currentPosition);
-
-        Direction lastDirection = route.removeLast();
-        currentPosition = currentPosition.subtract(lastDirection);
-
         // Remove the last step from the route and take the step back until the ant is at the start of the loop
-        while (!currentPosition.equals(startOfLoop)) {
+        do  {
             visitedCoordinates.remove(currentPosition);
-            lastDirection = route.removeLast();
+            Direction lastDirection = route.removeLast();
             currentPosition = currentPosition.subtract(lastDirection);
-        }
+        } while (!currentPosition.equals(startOfLoop));
+    }
 
-        addVisitedCoordinate(currentPosition);
+    public void adjacentHandler() {
 
-        //if (route.size() > 0) {
-        //    previousDirection = route.getRoute().get(route.getRoute().size() - 1).getOpposite();
-        //}
-        //System.out.println("returned from loop");
     }
 
     /**
      * Handler for when a dead end is encountered.
-     * @param directionToTake the direction to take to get out of the dead end
      */
-    public void deadEndHandler(Direction directionToTake) {
-        visitedCoordinates.remove(currentPosition);
-        currentPosition = currentPosition.add(directionToTake);
-        previousDirection = directionToTake;
-        //System.out.println(route.size());
-        route.removeLast();
-
+    public void deadEndHandler() {
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
         while(possibleDirections.size() < 2) {
             visitedCoordinates.remove(currentPosition);
-            currentPosition = currentPosition.add(possibleDirections.get(0));
-            previousDirection = possibleDirections.get(0);
-            route.removeLast();
+            previousDirection = route.removeLast();
+            currentPosition = currentPosition.subtract(previousDirection);
 
             possibleDirections = getPossibleDirections(true);
         }
 
-        maze.setWall(currentPosition.subtract(previousDirection));
+        //maze.setWall(currentPosition.add(previousDirection));
     }
 }
