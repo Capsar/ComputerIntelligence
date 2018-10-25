@@ -27,8 +27,8 @@ public class GeneticAlgorithm {
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
-        int populationSize = 20;
-        int generations = 10;
+        int populationSize = 200;
+        int generations = 1000000;
         String persistFile = "./tmp/productMatrixDist";
 
         //setup optimization
@@ -116,7 +116,7 @@ public class GeneticAlgorithm {
         for (int i = lastParentIndex + 1; i < genePool.length; i++) {
             if (j <= lastParentIndex) {
                 //Start filling with the best parent until genePool is full.
-                newPopulation[i] = mutate1(genePool[j], new Random().nextInt(5));
+                newPopulation[i] = mutate1(genePool[j], new Random().nextInt(10));
                 j++;
             } else {
                 //If genePool is not yet filled but all parents have made children, fill in the rest with random children.
@@ -214,19 +214,11 @@ public class GeneticAlgorithm {
 
     private double calculateFitness(TSPData pd, int[] genes) {
         double fitness = 0;
-        boolean p = false;
         for (int i = 1; i < genes.length; i++) {
-            p = !p;
-            if (p) {
-                fitness += genes[i - 1] - genes[i];
-            } else {
-                fitness += genes[i - 1] + genes[i];
-            }
-
-//            int start = genes[i - 1];
-//            int end = genes[i];
-//            int distance = pd.getDistances()[start][end];
-//            fitness += distance;
+            int start = genes[i - 1];
+            int end = genes[i];
+            int distance = pd.getDistances()[start][end];
+            fitness += distance;
         }
         fitness = 1.0 / fitness;
         return fitness;
