@@ -1,5 +1,9 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
 
@@ -189,11 +193,35 @@ public class Maze {
         }
     }
 
-    public void setWall(Coordinate co) {
-        walls[co.getX()][co.getY()] = 0;
-    }
+    /**
+     * Creates a text file with the amount of pheromone in each cell.
+     */
+    public void createPheromoneFile() {
+        File f = new File("data/pheromones.txt");
 
-    public double getDiameter() {
-        return Math.sqrt(Math.pow(width, 2) + Math.pow(length, 2));
+        try {
+            f.createNewFile();
+
+            PrintWriter pw = new PrintWriter (f);
+            pw.println (width + " " + length);
+
+            for (int y = 0; y < length; y++) {
+                String currentLine = "";
+                for (int x = 0; x < width; x++) {
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    double value = pheromones[x][y];
+                    if (walls[x][y] == 0) {
+                        value = -1;
+                    }
+
+                    currentLine += df.format(value) + " ";
+                }
+                pw.println(currentLine);
+            }
+
+            pw.close ();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
