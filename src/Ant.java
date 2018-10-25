@@ -77,10 +77,8 @@ public class Ant {
         addVisitedCoordinate(start);
 
         Direction dir = chooseFirstDirectionRandom();
-        currentPosition = currentPosition.add(dir);
-        previousDirection = dir;
+        takeStep(dir);
 
-        route.add(dir);
         addVisitedCoordinate(currentPosition);
 
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);

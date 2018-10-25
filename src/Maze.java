@@ -214,7 +214,12 @@ public class Maze {
                 String currentLine = "";
                 for (int x = 0; x < width; x++) {
                     DecimalFormat df = new DecimalFormat("#.##");
-                    currentLine += df.format(pheromones[x][y]) + " ";
+                    double value = pheromones[x][y];
+                    if (walls[x][y] == 0) {
+                        value = -1;
+                    }
+
+                    currentLine += df.format(value) + " ";
                 }
                 pw.println(currentLine);
             }
