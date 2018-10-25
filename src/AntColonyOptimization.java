@@ -125,7 +125,7 @@ public class AntColonyOptimization {
         Ant ant = new Ant(maze, spec);
         Route lastAntRoute = ant.findRoute();
 
-//        maze.createPheromoneFile();
+        maze.createPheromoneFile();
 
         System.out.println("finished all gens with fastestRoute="+fastestRoute.size() + " lastAntRoute=" + lastAntRoute.size() + " from " + spec.getStart() + " to " + spec.getEnd());
 
