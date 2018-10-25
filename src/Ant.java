@@ -74,16 +74,14 @@ public class Ant {
         if (start.equals(end)) {
             return route;
         }
-
         addVisitedCoordinate(start);
 
         Direction dir = chooseFirstDirectionRandom();
         currentPosition = currentPosition.add(dir);
+        previousDirection = dir;
 
         route.add(dir);
         addVisitedCoordinate(currentPosition);
-
-        previousDirection = dir;
 
         ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
@@ -124,6 +122,9 @@ public class Ant {
     public void addVisitedCoordinate(Coordinate coordinate) {
         if (getPossibleDirections(true).size() > 1) {
             visitedCoordinates.add(coordinate);
+            if (coordinate.equals(new Coordinate(75, 73))) {
+                System.out.println("added test");
+            }
         }
     }
 
