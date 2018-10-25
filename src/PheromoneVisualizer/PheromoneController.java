@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
+ * Controller for the pheromone.fxml file
  * Created by Sam van Berkel on 25/10/2018.
  */
 public class PheromoneController implements Initializable {
@@ -38,6 +39,9 @@ public class PheromoneController implements Initializable {
         loadPheromonesInGridPane();
     }
 
+    /**
+     * Loads the right pheromone numbers into the gridpane
+     */
     public void loadPheromonesInGridPane() {
         for (int i = 0; i < pheromones[0].length; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
@@ -74,6 +78,11 @@ public class PheromoneController implements Initializable {
 
     }
 
+    /**
+     * Creates a hex string with the right color for the amount of pheromone.
+     * @param pheromone the amount of pheromone in the current box
+     * @return hex representation of the color
+     */
     public String createHex(double pheromone) {
         if (pheromone == 0) {
             return "#ffffff";
@@ -94,6 +103,9 @@ public class PheromoneController implements Initializable {
         return hex;
     }
 
+    /**
+     * Read a text file with the amounts of pheromone and fill the two dimensional pheromone array
+     */
     public void readPheromoneFile() {
         File file = new File("data/pheromones.txt");
 
