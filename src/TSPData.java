@@ -38,18 +38,19 @@ public class TSPData implements Serializable {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         //parameters
-        int numberOfAnts = 20;
+        int threads = 8;
+        int antsPerThread = 2;
         int numberOfGenerations = 20;
         double Q = 1600;
         double evap = 0.1;
-        String persistFile = "./tmp/productMatrixDist";
-        String TSPpath = "./data/tsp products.txt";
-        String coordinates = "./data/hard coordinates.txt";
+        String persistFile = "data/productMatrixDist.txt";
+        String TSPpath = "data/tsp products.txt";
+        String coordinates = "data/hard coordinates.txt";
 
         //construct optimization
         Maze maze = Maze.createMaze("./data/hard maze.txt");
         TSPData pd = TSPData.readSpecification(coordinates, TSPpath);
-        AntColonyOptimization aco = new AntColonyOptimization(maze, numberOfAnts, numberOfGenerations, Q, evap);
+        AntColonyOptimization aco = new AntColonyOptimization(maze, threads, antsPerThread, numberOfGenerations, Q, evap);
 
         //run optimization and write to file
         pd.calculateRoutes(aco);
