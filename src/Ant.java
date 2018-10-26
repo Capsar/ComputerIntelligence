@@ -74,17 +74,9 @@ public class Ant {
         if (start.equals(end)) {
             return route;
         }
-        ArrayList<Direction> possibleDirections = getPossibleDirections(true);
 
-        addVisitedCoordinate(start);
-
-        updateDirectionProbabilities(possibleDirections, true);
-        Direction dir = weightedPossibleDirections.get();
-        takeStep(dir);
-
-        addVisitedCoordinate(currentPosition);
-
-        possibleDirections = getPossibleDirections(true);
+        ArrayList<Direction> possibleDirections = getPossibleDirections(false);
+        Direction dir;
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
