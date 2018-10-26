@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -41,16 +42,16 @@ public class AntColonyOptimization {
      */
     public static void main(String[] args) throws FileNotFoundException {
         //parameters
-        int threads = 8;
-        int antsPerThread = 2;
+        int threads = 5;
+        int antsPerThread = 1;
         int noGen = 10;
-        double Q = 1600;
-        double evap = 0.4;
+        double Q = 1600.0;
+        double evaporate = 0.1;
 
         //construct the optimization objects
         Maze maze = Maze.createMaze("./data/hard maze.txt");
         PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
-        AntColonyOptimization aco = new AntColonyOptimization(maze, threads, antsPerThread, noGen, Q, evap);
+        AntColonyOptimization aco = new AntColonyOptimization(maze, threads, antsPerThread, noGen, Q, evaporate);
 
         //save starting time
         long startTime = System.currentTimeMillis();
@@ -84,19 +85,13 @@ public class AntColonyOptimization {
 
         for (int gen = 0; gen < generations; gen++) {
             routes = new ArrayList<>();
-            for (int i = 0; i < threads; i++) {
+
+            for (int i = 0; i < threads; i++)
                 routeFutures.add(es.submit(new FindRouteThread(antsPerThread, maze, spec)));
-            }
 
-            boolean finished = false;
-
-            // Check if every thread has finished
-            while (!finished) {
-                finished = true;
-                for (int i = 0; i < routeFutures.size(); i++)
-                    if (!routeFutures.get(i).isDone())
-                        finished = false;
-            }
+            routeFutures.forEach(future -> {
+                while (!future.isDone()) ;
+            });
 
             // Add the results of every thread to a single list
             for (int i = 0; i < routeFutures.size(); i++) {
@@ -105,8 +100,9 @@ public class AntColonyOptimization {
                     currentRoutes = (ArrayList<Route>) routeFutures.get(i).get();
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    routes.addAll(currentRoutes);
                 }
-                routes.addAll(currentRoutes);
             }
 
             maze.evaporate(evaporation);
@@ -117,8 +113,8 @@ public class AntColonyOptimization {
         es.shutdown();
 
         Route fastestRoute = routes.get(0);
-        for(Route r : routes) {
-            if(r.shorterThan(fastestRoute))
+        for (Route r : routes) {
+            if (r.shorterThan(fastestRoute))
                 fastestRoute = r;
         }
 
@@ -127,7 +123,7 @@ public class AntColonyOptimization {
 
         maze.createPheromoneFile();
 
-        System.out.println("finished all gens with fastestRoute="+fastestRoute.size() + " lastAntRoute=" + lastAntRoute.size() + " from " + spec.getStart() + " to " + spec.getEnd());
+        System.out.println("finished all gens with fastestRoute=" + fastestRoute.size() + " lastAntRoute=" + lastAntRoute.size() + " from " + spec.getStart() + " to " + spec.getEnd());
 
         return fastestRoute;
     }

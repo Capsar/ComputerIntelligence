@@ -54,7 +54,7 @@ public class Maze {
     public void addPheromoneRoute(Route route, double Q) {
         double pheromonePerCoordinate = Q / (route.size() + 1);
         Coordinate currentLoc = route.getStart();
-        pheromones[currentLoc.getX()][currentLoc.getY()] = pheromonePerCoordinate;
+        pheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
 
         for (Direction dir: route.getRoute()) {
             currentLoc = currentLoc.add(dir);
