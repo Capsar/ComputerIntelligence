@@ -63,4 +63,10 @@ fabric.properties
 .idea/httpRequests
 \.idea/
 
+# Text files
+pheromones.txt
+easy_solution.txt
+medium_solution.txt
+hard_solution.txt
+
 ci-group-75\.iml

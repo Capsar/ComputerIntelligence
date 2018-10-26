@@ -74,14 +74,17 @@ public class Ant {
         if (start.equals(end)) {
             return route;
         }
+        ArrayList<Direction> possibleDirections = getPossibleDirections(true);
+
         addVisitedCoordinate(start);
 
-        Direction dir = chooseFirstDirectionRandom();
+        updateDirectionProbabilities(possibleDirections, true);
+        Direction dir = weightedPossibleDirections.get();
         takeStep(dir);
 
         addVisitedCoordinate(currentPosition);
 
-        ArrayList<Direction> possibleDirections = getPossibleDirections(true);
+        possibleDirections = getPossibleDirections(true);
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
@@ -120,9 +123,6 @@ public class Ant {
     public void addVisitedCoordinate(Coordinate coordinate) {
         if (getPossibleDirections(true).size() > 1) {
             visitedCoordinates.add(coordinate);
-            if (coordinate.equals(new Coordinate(75, 73))) {
-                System.out.println("added test");
-            }
         }
     }
 

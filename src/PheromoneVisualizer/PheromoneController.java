@@ -43,6 +43,9 @@ public class PheromoneController implements Initializable {
      * Loads the right pheromone numbers into the gridpane
      */
     public void loadPheromonesInGridPane() {
+        mazeGridPane.setPrefWidth(4000);
+        mazeGridPane.setPrefHeight(4000);
+
         for (int i = 0; i < pheromones[0].length; i++) {
             ColumnConstraints colConst = new ColumnConstraints();
             colConst.setPercentWidth(100 / pheromones[0].length);
