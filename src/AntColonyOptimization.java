@@ -42,11 +42,11 @@ public class AntColonyOptimization {
      */
     public static void main(String[] args) throws FileNotFoundException {
         //parameters
-        int threads = 5;
+        int threads = 8;
         int antsPerThread = 1;
-        int noGen = 10;
+        int noGen = 100;
         double Q = 1600.0;
-        double evaporate = 0.1;
+        double evaporate = 0.2;
 
         //construct the optimization objects
         Maze maze = Maze.createMaze("./data/hard maze.txt");
@@ -118,7 +118,7 @@ public class AntColonyOptimization {
                 fastestRoute = r;
         }
 
-        Ant ant = new Ant(maze, spec);
+        Ant2 ant = new Ant2(maze, spec);
         Route lastAntRoute = ant.findRoute();
 
         maze.createPheromoneFile();
