@@ -76,12 +76,14 @@ public class Ant {
         }
         addVisitedCoordinate(start);
 
-        Direction dir = chooseFirstDirectionRandom();
+        ArrayList<Direction> possibleDirections = getPossibleDirections(true);
+        updateDirectionProbabilities(possibleDirections, true);
+        Direction dir = weightedPossibleDirections.get();
         takeStep(dir);
 
         addVisitedCoordinate(currentPosition);
 
-        ArrayList<Direction> possibleDirections = getPossibleDirections(true);
+        possibleDirections = getPossibleDirections(true);
 
         long begin = System.currentTimeMillis();
         while(!currentPosition.equals(end)) {
