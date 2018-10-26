@@ -20,7 +20,7 @@ public class FindRouteThread implements Callable<ArrayList<Route>> {
         ArrayList<Route> routes = new ArrayList<>();
 
         for (int i = 0; i < antsPerThread; i++) {
-            Ant ant = new Ant(maze, pathSpecification);
+            Ant2 ant = new Ant2(maze, pathSpecification);
             routes.add(ant.findRoute());
         }
 
