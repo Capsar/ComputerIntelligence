@@ -144,7 +144,7 @@ public class Ant {
      * @param usePheromones boolean that determines if the possibilities need to be based on the amount of pheromones
      */
     public void updateDirectionProbabilities(ArrayList<Direction> possibleDirections, boolean usePheromones) {
-        SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
+        SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition, possibleDirections);
 
         // Reset the possible directions and add the new directions with their probabilities
         weightedPossibleDirections.reset();

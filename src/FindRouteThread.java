@@ -24,7 +24,6 @@ public class FindRouteThread implements Callable<ArrayList<Route>> {
         for (int i = 0; i < antsPerThread; i++) {
             Ant2 ant = new Ant2(maze, pathSpecification);
             Route route = ant.findRoute();
-            maze.addLocalPheromoneRoute(route, Q);
             routes.add(route);
         }
 

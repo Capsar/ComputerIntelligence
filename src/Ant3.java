@@ -137,7 +137,7 @@ public class Ant3 {
      * @param possibleDirections the directions that are possible to take
      */
     public void updateDirectionProbabilities(List<Direction> possibleDirections) {
-        SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
+        SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition, possibleDirections);
 
         // Reset the possible directions and add the new directions with their probabilities
         weightedPossibleDirections.reset();
