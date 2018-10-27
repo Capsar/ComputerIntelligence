@@ -1,9 +1,6 @@
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Class representing the first assignment. Finds shortest path between two points in a maze according to a specific
@@ -43,9 +40,9 @@ public class AntColonyOptimization {
     public static void main(String[] args) throws FileNotFoundException {
         //parameters
         int threads = 8;
-        int antsPerThread = 1;
-        int noGen = 100;
-        double Q = 1600.0;
+        int antsPerThread = 6;
+        int noGen = 3;
+        double Q = 1000;
         double evaporate = 0.2;
 
         //construct the optimization objects
@@ -79,41 +76,45 @@ public class AntColonyOptimization {
         maze.reset();
 
         ArrayList<Route> routes = new ArrayList<>();
+        ArrayList<Route> allRoutes = new ArrayList<>();
         ArrayList<Future> routeFutures = new ArrayList<>();
 
         ExecutorService es = Executors.newFixedThreadPool(threads);
 
         for (int gen = 0; gen < generations; gen++) {
-            routes = new ArrayList<>();
 
             for (int i = 0; i < threads; i++)
-                routeFutures.add(es.submit(new FindRouteThread(antsPerThread, maze, spec)));
+                routeFutures.add(es.submit(new FindRouteThread(antsPerThread, maze, spec, Q)));
 
             routeFutures.forEach(future -> {
                 while (!future.isDone()) ;
-            });
-
-            // Add the results of every thread to a single list
-            for (int i = 0; i < routeFutures.size(); i++) {
-                ArrayList<Route> currentRoutes = new ArrayList<>();
                 try {
-                    currentRoutes = (ArrayList<Route>) routeFutures.get(i).get();
-                } catch (Exception e) {
+                    ArrayList<Route> futureRoutes = (ArrayList<Route>) future.get();
+                    routes.addAll(futureRoutes);
+                    } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
-                    routes.addAll(currentRoutes);
                 }
-            }
+            });
+            maze.resetLocalPheromones();
+
+            Route fastestRouteOfGeneration = routes.get(0);
+            for (Route r : routes)
+                if (r.shorterThan(fastestRouteOfGeneration))
+                    fastestRouteOfGeneration = r;
 
             maze.evaporate(evaporation);
+            maze.addGlobalPheromoneRoute(fastestRouteOfGeneration, Q);
 
-            maze.addPheromoneRoutes(routes, Q);
+            allRoutes.addAll(routes);
+            System.out.println("Finished generation: " + gen + " with " + routes.size() + " new routes, the fastest: " + fastestRouteOfGeneration.size());
+            routeFutures.clear();
+            routes.clear();
         }
 
         es.shutdown();
 
-        Route fastestRoute = routes.get(0);
-        for (Route r : routes) {
+        Route fastestRoute = allRoutes.get(0);
+        for (Route r : allRoutes) {
             if (r.shorterThan(fastestRoute))
                 fastestRoute = r;
         }

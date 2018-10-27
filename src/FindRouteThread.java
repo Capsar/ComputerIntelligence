@@ -8,11 +8,13 @@ public class FindRouteThread implements Callable<ArrayList<Route>> {
     private int antsPerThread;
     private Maze maze;
     private PathSpecification pathSpecification;
+    private double Q;
 
-    public FindRouteThread(int antsPerThread, Maze maze, PathSpecification pathSpecification) {
+    public FindRouteThread(int antsPerThread, Maze maze, PathSpecification pathSpecification, double q) {
         this.antsPerThread = antsPerThread;
         this.maze = maze;
         this.pathSpecification = pathSpecification;
+        Q = q;
     }
 
     @Override
@@ -21,7 +23,9 @@ public class FindRouteThread implements Callable<ArrayList<Route>> {
 
         for (int i = 0; i < antsPerThread; i++) {
             Ant2 ant = new Ant2(maze, pathSpecification);
-            routes.add(ant.findRoute());
+            Route route = ant.findRoute();
+            maze.addLocalPheromoneRoute(route, Q);
+            routes.add(route);
         }
 
         return routes;

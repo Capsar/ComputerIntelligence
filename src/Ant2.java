@@ -6,6 +6,7 @@ import java.util.*;
 public class Ant2 {
 
     private static Random rand;
+    private final PathSpecification spec;
     private Maze maze;
     private Coordinate start;
     private Coordinate end;
@@ -14,8 +15,9 @@ public class Ant2 {
     private Stack<Coordinate> visitedCoordinates;
     private Stack<Coordinate> backtrackedCoordinates;
     private WeightedCollection weightedPossibleDirections;
-    private Coordinate previousPosition;
-    private boolean lastStepWasForward;
+    private Direction previousDirection;
+
+    private int[][] positionCounter;
 
     /**
      * Constructor for ant taking a Maze and PathSpecification.
@@ -25,6 +27,7 @@ public class Ant2 {
      */
     public Ant2(Maze maze, PathSpecification spec) {
         this.maze = maze;
+        this.spec = spec;
         this.start = spec.getStart();
         this.end = spec.getEnd();
         this.currentPosition = start;
@@ -32,6 +35,7 @@ public class Ant2 {
         if (rand == null) {
             rand = new Random();
         }
+        positionCounter = new int[maze.getWidth()][maze.getLength()];
         weightedPossibleDirections = new WeightedCollection();
         visitedCoordinates = new Stack<>();
         backtrackedCoordinates = new Stack<>();
@@ -48,37 +52,38 @@ public class Ant2 {
         visitedCoordinates.push(currentPosition);
         Direction dir = randomDirection();
         takeStep(dir);
-        previousPosition = start;
-        lastStepWasForward = true;
+        int shortCutTries = 2;
         long begin = System.currentTimeMillis();
         while (!currentPosition.equals(end)) {
-            if(System.currentTimeMillis() - 20000 > begin)
-                System.err.println("Stuck for 20 seconds");
+//            if (System.currentTimeMillis() - 20000 > begin)
+//                System.err.println("Stuck for 20 seconds");
 
-            List<Direction> possibleDirections = getPossibleDirections();
-            if (possibleDirections.isEmpty()) {
-                dir = route.removeLast().getOpposite();
+            List<Direction> possibleDirections;
+            Coordinate foundShorterRoute = findShorterRoute();
+            if (foundShorterRoute != null) {
+                if (positionCounter[foundShorterRoute.getX()][foundShorterRoute.getY()] < shortCutTries) {
+                    positionCounter[foundShorterRoute.getX()][foundShorterRoute.getY()]++;
+                    Direction tempDirection = getDirection(foundShorterRoute, currentPosition);
+                    while (!foundShorterRoute.equals(currentPosition)) {
+                        dir = route.removeLast();
+                        revertStep(dir);
+                    }
+                    possibleDirections = getPossibleDirections();
+                    if (possibleDirections.size() == 1)
+                        takeStep(tempDirection);
+                }
+            }
+
+            possibleDirections = getPossibleDirections();
+            if (possibleDirections.isEmpty() || (foundShorterRoute != null && positionCounter[foundShorterRoute.getX()][foundShorterRoute.getY()] > shortCutTries)) {
+                dir = route.removeLast();
                 takeStepBack(dir);
             } else {
-//                Coordinate foundShorterRoute = findShorterRoute();
-//                if (foundShorterRoute != null && lastStepWasForward) {
-//                    System.out.println("Found a faster route: from " + foundShorterRoute + " to " + currentPosition);
-//                    Direction tempDirection = getDirection(foundShorterRoute, currentPosition);
-//                    while (!foundShorterRoute.equals(currentPosition)) {
-//                        dir = route.removeLast().getOpposite();
-//                        revertStep(dir);
-//                    }
-//                    visitedCoordinates.push(currentPosition);
-//                    takeStep(tempDirection);
-//                    System.out.println("Shortcut completed.");
-//                } else {
-                    updateDirectionProbabilities(possibleDirections);
-                    dir = weightedPossibleDirections.get();
-                    takeStep(dir);
-//                }
+                updateDirectionProbabilities(possibleDirections, true);
+                dir = weightedPossibleDirections.get();
+                takeStep(dir);
             }
         }
-
         return route;
     }
 
@@ -101,7 +106,8 @@ public class Ant2 {
         for (int i = 0; i < 4; i++) {
             Direction direction = Direction.intToDir(i);
             Coordinate next = currentPosition.add(direction);
-            if (!next.equals(previousPosition) && visitedCoordinates.contains(next) && !backtrackedCoordinates.contains(next)) {
+            if (maze.isPath(next) && !direction.isOpposite(previousDirection) && !currentPosition.equals(visitedCoordinates.peek())
+                    && !next.equals(visitedCoordinates.peek()) && visitedCoordinates.contains(next) && !backtrackedCoordinates.contains(next)) {
                 return next;
             }
         }
@@ -109,29 +115,23 @@ public class Ant2 {
     }
 
     private void revertStep(Direction dir) {
-        Coordinate removed = visitedCoordinates.pop();
-        previousPosition = currentPosition;
-        currentPosition = currentPosition.add(dir);
-        lastStepWasForward = false;
+        Coordinate previousPosition = visitedCoordinates.pop();
+        currentPosition = currentPosition.subtract(dir);
 //        System.out.println("r: " + currentPosition + " | " + removed);
     }
 
     private void takeStepBack(Direction dir) {
         Coordinate removed = visitedCoordinates.pop();
-        backtrackedCoordinates.push(removed);
-
-        previousPosition = currentPosition;
-        currentPosition = currentPosition.add(dir);
-        lastStepWasForward = false;
+        backtrackedCoordinates.push(currentPosition);
+        currentPosition = currentPosition.subtract(dir);
 //        System.out.println("b: " + currentPosition + " | " + removed);
     }
 
     private void takeStep(Direction dir) {
-        lastStepWasForward = true;
-        previousPosition = currentPosition;
+        previousDirection = dir;
+        visitedCoordinates.push(currentPosition);
         currentPosition = currentPosition.add(dir);
         route.add(dir);
-        visitedCoordinates.push(currentPosition);
 //        System.out.println("f: " + currentPosition);
     }
 
@@ -157,8 +157,8 @@ public class Ant2 {
     }
 
     private boolean contains(Stack<Coordinate> stack, Coordinate pos) {
-        for(Coordinate coordinate : stack) {
-            if(coordinate.equals(pos))
+        for (Coordinate coordinate : stack) {
+            if (coordinate.equals(pos))
                 return true;
         }
         return false;
@@ -170,30 +170,84 @@ public class Ant2 {
      *
      * @param possibleDirections the directions that are possible to take
      */
-    public void updateDirectionProbabilities(List<Direction> possibleDirections) {
+    public void updateDirectionProbabilities(List<Direction> possibleDirections, boolean useEuclidean) {
         SurroundingPheromone surroundingPheromone = maze.getSurroundingPheromone(currentPosition);
 
         // Reset the possible directions and add the new directions with their probabilities
         weightedPossibleDirections.reset();
 
-        // Get the total amount of pheromone for the possible directions (so excluding the direction where the ant came from)
-        double totalPheromone = 0;
         double[] pheromones = new double[possibleDirections.size()];
+        double[] euclid = new double[possibleDirections.size()];
+
+        // Get the total amount of pheromone for the possible directions (so excluding the direction where the ant came from)
         for (int i = 0; i < possibleDirections.size(); i++) {
             Direction dir = possibleDirections.get(i);
             pheromones[i] = surroundingPheromone.get(dir);
             //If there is no pheromone we still sometimes want to walk that path, so we give it a none 0 chance.
             if (pheromones[i] == 0)
                 pheromones[i] = 1;
-            totalPheromone += pheromones[i];
+        }
+
+        if (useEuclidean)
+            euclid = getEuclidianProbabilities(possibleDirections);
+
+        double top[] = new double[possibleDirections.size()];
+        double total = 0;
+        for (int i = 0; i < possibleDirections.size(); i++) {
+            double alpha = 1.0;
+            double beta = 0.9;
+            double pheromone = Math.pow(pheromones[i], alpha);
+            double heuristic = 1;
+            if (useEuclidean)
+                heuristic = Math.pow(euclid[i], beta);
+            top[i] = pheromone * heuristic;
+            total += pheromone * heuristic;
         }
 
         for (int i = 0; i < possibleDirections.size(); i++) {
             Direction dir = possibleDirections.get(i);
-            double pheromone = pheromones[i];
-            double probability = pheromone / totalPheromone;
+            double probability = top[i] / total;
             weightedPossibleDirections.add(dir, probability);
         }
+    }
+
+    /**
+     * Get the probabilitiy for each direction based on the euclidian distance to the end point.
+     *
+     * @param possibleDirections the possible directions that where probabilities need to be found for
+     * @return an array containing the probabilities of the possible directions
+     */
+    public double[] getEuclidianProbabilities(List<Direction> possibleDirections) {
+        double[] factors = new double[possibleDirections.size()];
+
+        // Calculate the combined distance of all options
+        double totalDist = 0;
+        for (int i = 0; i < possibleDirections.size(); i++) {
+            double eucDist = currentPosition.add(possibleDirections.get(i)).getEuclidianDistance(end);
+            if (eucDist == 0) {
+                factors = new double[possibleDirections.size()];
+                factors[i] = 1;
+                return factors;
+            }
+
+            // Check if a direction brings the ant to the goal
+            totalDist += eucDist;
+        }
+
+        // Calculate the factors
+        double totalFactors = 0;
+        for (int i = 0; i < factors.length; i++) {
+            double factor = totalDist / currentPosition.add(possibleDirections.get(i)).getEuclidianDistance(end);
+            factors[i] = factor;
+            totalFactors += factor;
+        }
+
+        // Normalize factors
+        for (int i = 0; i < factors.length; i++) {
+            factors[i] = factors[i] / totalFactors;
+        }
+
+        return factors;
     }
 }
 

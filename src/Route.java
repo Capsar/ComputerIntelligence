@@ -1,10 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class representing a route.
@@ -12,7 +9,7 @@ import java.util.Set;
 public class Route implements Serializable {
 	
     private static final long serialVersionUID = 0L;
-    private ArrayList<Direction> route;
+    private Stack<Direction> route;
     private Coordinate start;
 
     /**
@@ -20,7 +17,7 @@ public class Route implements Serializable {
      * @param start starting coordinate
      */
     public Route(Coordinate start) {
-        route = new ArrayList<>();
+        route = new Stack<>();
         this.start = start;
     }
 
@@ -29,7 +26,7 @@ public class Route implements Serializable {
      * @param dir Direction we moved in
      */
     public void add(Direction dir) {
-        route.add(dir);
+        route.push(dir);
     }
 
 
@@ -41,7 +38,7 @@ public class Route implements Serializable {
         return route.size();
     }
 
-    public ArrayList<Direction> getRoute() {
+    public Stack<Direction> getRoute() {
         return route;
     }
 
@@ -67,7 +64,7 @@ public class Route implements Serializable {
      * @return last direction
      */
     public Direction removeLast() {
-        return route.remove(route.size() - 1);
+        return route.pop();
     }
 
     /**

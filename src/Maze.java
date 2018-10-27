@@ -15,9 +15,8 @@ public class Maze {
     private int width;
     private int length;
     private int[][] walls;
-    private double[][] pheromones;
-    private Coordinate start;
-    private Coordinate end;
+    private double[][] globalPheromones;
+    private double[][] localPheromones;
 
     /**
      * Constructor of a maze
@@ -36,7 +35,8 @@ public class Maze {
      * Initialize pheromones to a start value.
      */
     private void initializePheromones() {
-        pheromones = new double[width][length];
+        localPheromones = new double[width][length];
+        globalPheromones = new double[width][length];
     }
 
     /**
@@ -46,19 +46,39 @@ public class Maze {
         initializePheromones();
     }
 
+    public void resetLocalPheromones() {
+        localPheromones = new double[width][length];
+    }
+
     /**
      * Update the pheromones along a certain route according to a certain Q
      * @param route The route of the ants
      * @param Q Normalization factor for amount of dropped pheromone
      */
-    public void addPheromoneRoute(Route route, double Q) {
+    public synchronized void addLocalPheromoneRoute(Route route, double Q) {
         double pheromonePerCoordinate = Q / (route.size() + 1);
         Coordinate currentLoc = route.getStart();
-        pheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
+        localPheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
 
         for (Direction dir: route.getRoute()) {
             currentLoc = currentLoc.add(dir);
-            pheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
+            localPheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
+        }
+    }
+
+    /**
+     * Update the pheromones along a certain route according to a certain Q
+     * @param route The route of the ants
+     * @param Q Normalization factor for amount of dropped pheromone
+     */
+    public void addGlobalPheromoneRoute(Route route, double Q) {
+        double pheromonePerCoordinate = Q / (route.size() + 1);
+        Coordinate currentLoc = route.getStart();
+        globalPheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
+
+        for (Direction dir: route.getRoute()) {
+            currentLoc = currentLoc.add(dir);
+            globalPheromones[currentLoc.getX()][currentLoc.getY()] += pheromonePerCoordinate;
         }
     }
 
@@ -67,9 +87,9 @@ public class Maze {
      * @param routes A list of routes
      * @param Q Normalization factor for amount of dropped pheromone
      */
-    public void addPheromoneRoutes(List<Route> routes, double Q) {
+    public void addLocalPheromoneRoutes(List<Route> routes, double Q) {
         for (Route r : routes) {
-            addPheromoneRoute(r, Q);
+            addLocalPheromoneRoute(r, Q);
         }
     }
 
@@ -78,11 +98,12 @@ public class Maze {
      * @param rho evaporation factor
      */
     public void evaporate(double rho) {
-        for (int y = 0; y < pheromones[0].length; y++) {
-            for (int x = 0; x < pheromones.length; x++) {
-                pheromones[x][y] = pheromones[x][y] * (1 -rho);
+        for (int y = 0; y < globalPheromones[0].length; y++) {
+            for (int x = 0; x < globalPheromones.length; x++) {
+                globalPheromones[x][y] = globalPheromones[x][y] * (1 - rho);
             }
         }
+        resetLocalPheromones();
     }
 
     /**
@@ -125,7 +146,7 @@ public class Maze {
      */
     private double getPheromone(Coordinate pos) {
         if (inBounds(pos)) {
-            return pheromones[pos.getX()][pos.getY()];
+            return globalPheromones[pos.getX()][pos.getY()] + localPheromones[pos.getX()][pos.getY()];
         } else {
             return 0;
         }
@@ -209,7 +230,7 @@ public class Maze {
                 String currentLine = "";
                 for (int x = 0; x < width; x++) {
                     DecimalFormat df = new DecimalFormat("#.##");
-                    double value = pheromones[x][y];
+                    double value = globalPheromones[x][y];
                     if (walls[x][y] == 0) {
                         value = -1;
                     }

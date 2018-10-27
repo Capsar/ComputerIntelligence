@@ -1,6 +1,8 @@
 import java.util.*;
 
 /**
+ * TEST CLASS SHOULD NOT BE USED IN PROGRAM, IS VERY INEFFICIENT!!
+ *
  * Class that represents the ants functionality.
  */
 public class Ant3 {
