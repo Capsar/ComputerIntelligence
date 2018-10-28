@@ -39,10 +39,10 @@ public class TSPData implements Serializable {
 
         //parameters
         int threads = 8;
-        int antsPerThread = 6;
-        int noGen = 3;
-        double Q = 1000;
-        double evaporate = 0.2;
+        int numberOfAnts = 100;
+        int noGen = 50;
+        double Q = 2000;
+        double evaporate = 0.001;
         String persistFile = "tmp/productMatrixDist";
         String TSPpath = "data/tsp products.txt";
         String coordinates = "data/hard coordinates.txt";
@@ -50,7 +50,7 @@ public class TSPData implements Serializable {
         //construct optimization
         Maze maze = Maze.createMaze("./data/hard maze.txt");
         TSPData pd = TSPData.readSpecification(coordinates, TSPpath);
-        AntColonyOptimization aco = new AntColonyOptimization(maze, threads, antsPerThread, noGen, Q, evaporate);
+        AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
 
         //save starting time
         long startTime = System.currentTimeMillis();

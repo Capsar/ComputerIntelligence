@@ -28,7 +28,7 @@ public class GeneticAlgorithm {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
         int populationSize = 1000;
-        int generations = 100000;
+        int generations = 10000;
         String persistFile = "./tmp/productMatrixDist";
 
         //setup optimization
@@ -94,7 +94,16 @@ public class GeneticAlgorithm {
             genePool = fillParents(parents);
 
             genePool = createChildren(genePool);
+
+            if(gen % 1000 == 0)
+                System.out.println("Generation: " + gen);
         }
+        for (int pop = 0; pop < popSize; pop++) {
+            fitness[pop] = calculateFitness(pd, genePool[pop]);
+        }
+
+        //Sort the genePool according to the fitness list
+        QuickSort.quickSort(genePool, fitness);
         printArrays(fitness, genePool);
 
         return genePool[0];
@@ -325,15 +334,14 @@ public class GeneticAlgorithm {
     }
 
     private double calculateFitness(TSPData pd, int[] genes) {
-        double fitness = 0;
+        double totalDistance = 0;
         for (int i = 1; i < genes.length; i++) {
             int start = genes[i - 1];
             int end = genes[i];
             int distance = pd.getDistances()[start][end];
-            fitness += distance;
+            totalDistance += distance;
         }
-        fitness = 1.0 / fitness;
-        return fitness;
+        return totalDistance;
     }
 
     private boolean isArrayAllNull(int[] list) {

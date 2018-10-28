@@ -47,7 +47,7 @@ public class QuickSort {
         swap(list, elements, low, pivot);
         int border = low + 1;
         for (int i = border; i <= high; i++) {
-            if (elements[i] > elements[low]) {
+            if (elements[i] < elements[low]) {
                 swap(list, elements, i, border++);
             }
         }
