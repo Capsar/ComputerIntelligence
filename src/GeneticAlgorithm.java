@@ -1,6 +1,7 @@
 import sort.QuickSort;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -10,6 +11,7 @@ public class GeneticAlgorithm {
 
     private int generations;
     private int popSize;
+    private TSPData pd;
 
     /**
      * Constructs a new 'genetic algorithm' object.
@@ -27,7 +29,7 @@ public class GeneticAlgorithm {
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
-        int populationSize = 1000;
+        int populationSize = 100;
         int generations = 10000;
         String persistFile = "./tmp/productMatrixDist";
 
@@ -70,83 +72,84 @@ public class GeneticAlgorithm {
      * @return the optimized product sequence.
      */
     public int[] solveTSP(TSPData pd) {
-
+        this.pd = pd;
         double[] fitness = new double[popSize];
         int[][] genePool = new int[popSize][newChromosome().length];
+        double shortest = Double.MAX_VALUE;
 
         for (int i = 0; i < popSize; i++) {
             genePool[i] = newChromosome();
+            double distance = calculateDistance(genePool[i]);
+            if (distance < shortest)
+                shortest = distance;
         }
         System.out.println("genePool filled with randomly ordered chromosomes.");
 
         for (int gen = 0; gen < generations; gen++) {
-            for (int pop = 0; pop < popSize; pop++) {
-                fitness[pop] = calculateFitness(pd, genePool[pop]);
-            }
+            for (int pop = 0; pop < popSize; pop++)
+                fitness[pop] = calculateFitness(shortest, genePool[pop]);
 
             //Sort the genePool according to the fitness list
             QuickSort.quickSort(genePool, fitness);
+            shortest = calculateDistance(genePool[0]);
 
             //Select the chromosomes with the highest fitness.
-            int[][] parents = parent(genePool);
+            genePool = cumulativeSelection(genePool, fitness);
 
-            //Fill gene pool with fresh new chromosomes.
-            genePool = fillParents(parents);
+            genePool = createChildren(genePool, 0.1);
 
-            genePool = createChildren(genePool);
-
-            if(gen % 1000 == 0)
+            if (gen % 1000 == 0)
                 System.out.println("Generation: " + gen);
         }
-        for (int pop = 0; pop < popSize; pop++) {
-            fitness[pop] = calculateFitness(pd, genePool[pop]);
+
+
+        for (int i = 0; i < popSize; i++) {
+            double distance = calculateDistance(genePool[i]);
+            if (distance < shortest)
+                shortest = distance;
         }
 
-        //Sort the genePool according to the fitness list
+        for (int pop = 0; pop < popSize; pop++)
+            fitness[pop] = calculateFitness(shortest, genePool[pop]);
         QuickSort.quickSort(genePool, fitness);
+
+
         printArrays(fitness, genePool);
 
         return genePool[0];
     }
 
-    private int[][] createChildren(int[][] genePool) {
-        int[][] newPopulation = new int[genePool.length][genePool[0].length];
-
-        //Fill in the parents again in the population & safe last parent index.
-        int lastParentIndex = 0;
-        for (int i = 0; i < genePool.length; i++) {
-            if (!isArrayAllNull(genePool[i])) {
-                newPopulation[i] = genePool[i];
-                lastParentIndex = i;
+    private int[][] cumulativeSelection(int[][] genePool, double[] fitness) {
+        int[][] selection = new int[genePool.length][genePool[0].length];
+        double totalFitness = Arrays.stream(fitness).sum();
+        double cumulative = 0;
+        int index = 0;
+        for (int i = fitness.length - 1; i >= 0; i--) {
+            double fitnessRatio = fitness[i] / totalFitness;
+            cumulative += fitnessRatio;
+            if (new Random().nextDouble() <= cumulative) {
+                selection[index] = genePool[i];
+                index++;
             }
         }
-        int j = 1;
-        //Start filling in new children right after the last parent.
-        for (int i = lastParentIndex + 1; i < genePool.length; i++) {
-            if (j <= lastParentIndex) {
-                //Start filling with the best parent until genePool is full.
-                newPopulation[i] = mutate4(genePool[j], genePool[j - 1]);
-                j++;
-            } else {
-                //If genePool is not yet filled but all parents have made children, fill in the rest with random children.
-                newPopulation[i] = newChromosome();
-            }
-
-        }
-
-
-        return newPopulation;
+        return selection;
     }
 
-    private int[][] fillParents(int[][] parents) {
-        int[][] newPopulation = new int[parents.length][parents[0].length];
+    private int[][] createChildren(int[][] genePool, double mutationChance) {
+        int[][] newPopulation = new int[genePool.length][genePool[0].length];
+        int parentSize = 0;
+        for (int i = 0; i < genePool.length - 1; i++) {
+            if (isArrayAllNull(genePool[i + 1]))
+                parentSize = i;
+        }
 
-        for (int i = 0; i < parents.length; i++) {
-            if (!isArrayAllNull(parents[i])) {
-                newPopulation[i] = parents[i];
-            } else {
-                break;
-            }
+        int index = 1;
+        for (int i = 0; i < genePool.length; i++) {
+            if (isArrayAllNull(genePool[index]))
+                index = 1;
+
+            newPopulation[i] = reproduce(genePool[new Random().nextInt(parentSize)], genePool[new Random().nextInt(parentSize)]);
+            index++;
         }
         return newPopulation;
     }
@@ -179,11 +182,7 @@ public class GeneticAlgorithm {
         return newChromosome;
     }
 
-    private int[] mutate3() {
-        return newChromosome();
-    }
-
-    private int[] mutate4(int[] parent1, int[] parent2) {
+    private int[] reproduce(int[] parent1, int[] parent2) {
         int[][] neighbourList = createNeighbourList(parent1, parent2);
         int nextNode = (new Random().nextDouble() > 0.5) ? parent1[0] : parent2[0];
         int[] newChromosome = newNegativeArray(parent1.length);
@@ -204,6 +203,23 @@ public class GeneticAlgorithm {
         }
 
         return newChromosome;
+    }
+
+    private double calculateFitness(double shortest, int[] genes) {
+        double distance = calculateDistance(genes);
+        return shortest / distance;
+    }
+
+    private double calculateDistance(int[] genes) {
+        double totalDistance = 0;
+        for (int i = 1; i < genes.length; i++) {
+            int start = genes[i - 1];
+            int end = genes[i];
+            int distance = pd.getDistances()[start][end];
+            totalDistance += distance;
+        }
+        return totalDistance;
+
     }
 
     private int getNextNode(int node, int[][] neighbourList) {
@@ -288,7 +304,7 @@ public class GeneticAlgorithm {
             }
         }
     }
-
+    
     private boolean contains(int[] ints, int i) {
         for (int j : ints)
             if (j == i)
@@ -306,42 +322,6 @@ public class GeneticAlgorithm {
     private int[] newChromosome() {
         int[] solution = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
         return shuffle(solution).clone();
-    }
-
-    private int[][] parent(int[][] genePool) {
-        int[][] parents = new int[genePool.length][genePool[0].length];
-        int index = 0;
-        for (int i = 0; i < genePool.length; i++) {
-            double random = new Random().nextDouble();
-            double gaussian = gaussian(i, genePool.length) / 1.5;
-            if (random < gaussian) {
-                parents[index] = genePool[i];
-                index++;
-            }
-        }
-
-        return parents;
-    }
-
-    private double gaussian(double index, double listLength) {
-        double sigma = 0.4f;
-        double mean = 0;
-        double normalization = (float) (1.0f / (sigma * Math.sqrt(2 * Math.PI)));
-        double x = index / listLength;
-        double power = Math.pow(((x - mean) / sigma), 2.0);
-        double gaussian = (normalization * Math.pow(Math.E, -0.5 * power));
-        return gaussian;
-    }
-
-    private double calculateFitness(TSPData pd, int[] genes) {
-        double totalDistance = 0;
-        for (int i = 1; i < genes.length; i++) {
-            int start = genes[i - 1];
-            int end = genes[i];
-            int distance = pd.getDistances()[start][end];
-            totalDistance += distance;
-        }
-        return totalDistance;
     }
 
     private boolean isArrayAllNull(int[] list) {
@@ -373,7 +353,7 @@ public class GeneticAlgorithm {
 
     private void printArrays(double[] fitness, int[][] genePool) {
         for (int i = 0; i < genePool.length; i++) {
-            System.out.print((float) fitness[i] + "=");
+            System.out.print("Length=" + calculateDistance(genePool[i]) + " Fitness=" + (float) fitness[i] + " Gene=");
             for (int j = 0; j < genePool[0].length; j++) {
                 int x = genePool[i][j];
                 System.out.print(x + ", ");
