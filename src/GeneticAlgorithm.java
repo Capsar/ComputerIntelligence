@@ -29,8 +29,8 @@ public class GeneticAlgorithm {
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
-        int populationSize = 100;
-        int generations = 10000;
+        int populationSize = 1000;
+        int generations = 500;
         String persistFile = "./tmp/productMatrixDist";
 
         //setup optimization
@@ -96,7 +96,7 @@ public class GeneticAlgorithm {
             //Select the chromosomes with the highest fitness.
             genePool = cumulativeSelection(genePool, fitness);
 
-            genePool = createChildren(genePool, 0.1);
+            genePool = createChildren(genePool);
 
             if (gen % 1000 == 0)
                 System.out.println("Generation: " + gen);
@@ -135,7 +135,7 @@ public class GeneticAlgorithm {
         return selection;
     }
 
-    private int[][] createChildren(int[][] genePool, double mutationChance) {
+    private int[][] createChildren(int[][] genePool) {
         int[][] newPopulation = new int[genePool.length][genePool[0].length];
         int parentSize = 0;
         for (int i = 0; i < genePool.length - 1; i++) {
@@ -148,41 +148,15 @@ public class GeneticAlgorithm {
             if (isArrayAllNull(genePool[index]))
                 index = 1;
 
-            newPopulation[i] = reproduce(genePool[new Random().nextInt(parentSize)], genePool[new Random().nextInt(parentSize)]);
+            int parent1 = new Random().nextInt(parentSize);
+            int parent2 = new Random().nextInt(parentSize);
+            newPopulation[i] = edgeRecombinationCrossover(genePool[parent1], genePool[parent2]);
             index++;
         }
         return newPopulation;
     }
 
-    private int[] mutate1(int[] parent, int numberOfSwaps) {
-        int[] newChromosome = parent.clone();
-        Random random = new Random();
-        for (int i = 0; i < numberOfSwaps; i++) {
-            int swap1 = random.nextInt(parent.length);
-            int swap2 = random.nextInt(parent.length);
-            if (swap1 == swap2)
-                i--;
-            else {
-                swap(newChromosome, swap1, swap2);
-            }
-
-        }
-
-        return newChromosome;
-    }
-
-    private int[] mutate2(int[] parent, int numberOfSwaps) {
-        int[] newChromosome = parent.clone();
-        Random random = new Random();
-        for (int i = 0; i < numberOfSwaps; i++) {
-            int swap1 = 1 + random.nextInt(parent.length - 1);
-            int swap2 = swap1 - 1;
-            swap(newChromosome, swap1, swap2);
-        }
-        return newChromosome;
-    }
-
-    private int[] reproduce(int[] parent1, int[] parent2) {
+    private int[] edgeRecombinationCrossover(int[] parent1, int[] parent2) {
         int[][] neighbourList = createNeighbourList(parent1, parent2);
         int nextNode = (new Random().nextDouble() > 0.5) ? parent1[0] : parent2[0];
         int[] newChromosome = newNegativeArray(parent1.length);
@@ -203,23 +177,6 @@ public class GeneticAlgorithm {
         }
 
         return newChromosome;
-    }
-
-    private double calculateFitness(double shortest, int[] genes) {
-        double distance = calculateDistance(genes);
-        return shortest / distance;
-    }
-
-    private double calculateDistance(int[] genes) {
-        double totalDistance = 0;
-        for (int i = 1; i < genes.length; i++) {
-            int start = genes[i - 1];
-            int end = genes[i];
-            int distance = pd.getDistances()[start][end];
-            totalDistance += distance;
-        }
-        return totalDistance;
-
     }
 
     private int getNextNode(int node, int[][] neighbourList) {
@@ -304,20 +261,30 @@ public class GeneticAlgorithm {
             }
         }
     }
-    
+
+    private double calculateFitness(double shortest, int[] genes) {
+        double distance = calculateDistance(genes);
+        return shortest / distance;
+    }
+
+    private double calculateDistance(int[] genes) {
+        double totalDistance = 0;
+        for (int i = 1; i < genes.length; i++) {
+            int start = genes[i - 1];
+            int end = genes[i];
+            int distance = pd.getDistances()[start][end];
+            totalDistance += distance;
+        }
+        return totalDistance;
+
+    }
+
     private boolean contains(int[] ints, int i) {
         for (int j : ints)
             if (j == i)
                 return true;
         return false;
     }
-
-    private void swap(int[] elements, int i1, int i2) {
-        int temp = elements[i1];
-        elements[i1] = elements[i2];
-        elements[i2] = temp;
-    }
-
 
     private int[] newChromosome() {
         int[] solution = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
