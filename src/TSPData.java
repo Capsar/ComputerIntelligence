@@ -41,8 +41,9 @@ public class TSPData implements Serializable {
         int threads = 8;
         int numberOfAnts = 100;
         int noGen = 50;
-        double Q = 2000;
-        double evaporate = 0.001;
+        double Q = 500;
+        double evaporate = 0.1;
+
         String persistFile = "tmp/productMatrixDist";
         String TSPpath = "data/tsp products.txt";
         String coordinates = "data/hard coordinates.txt";

@@ -44,8 +44,8 @@ public class AntColonyOptimization {
         int threads = 8;
         int numberOfAnts = 100;
         int noGen = 50;
-        double Q = 2000;
-        double evaporate = 0.001;
+        double Q = 500;
+        double evaporate = 0.1;
 
         //construct the optimization objects
         Maze maze = Maze.createMaze("./data/hard maze.txt");
@@ -111,7 +111,7 @@ public class AntColonyOptimization {
             maze.addGlobalPheromoneRoute(shortestRouteOfGeneration, Q);
 
             shortestRoutes.add(shortestRouteOfGeneration);
-            System.out.println("Finished generation: " + gen + " with " + routes.size() + " new routes and the shortest: " + shortestRouteOfGeneration.size());
+//            System.out.println("Finished generation: " + gen + " with " + routes.size() + " new routes and the shortest: " + shortestRouteOfGeneration.size());
             routeFutures.clear();
             routes.clear();
         }
