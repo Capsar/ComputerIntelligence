@@ -1,11 +1,10 @@
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Sam van Berkel on 11/10/2018.
@@ -20,10 +19,9 @@ public class AntTest {
 
             Ant ant = new Ant(maze, spec);
 
-            ant.setCurrentPosition(new Coordinate(16, 3));
-            ant.setPreviousDirection(Direction.South);
-
-            ArrayList<Direction> directions = ant.getPossibleDirections(true);
+            ant.setCurrentPosition(new Coordinate(16, 2));
+            ant.takeStep(Direction.South);
+            List<Direction> directions = ant.getPossibleDirections();
 
             assertEquals(3, directions.size());
 
@@ -45,47 +43,10 @@ public class AntTest {
 
             Ant ant = new Ant(maze, spec);
 
-            ant.setCurrentPosition(new Coordinate(24, 14));
-            ant.setPreviousDirection(Direction.South);
-
-            ArrayList<Direction> directions = ant.getPossibleDirections(true);
-
+            ant.setCurrentPosition(new Coordinate(24, 13));
+            ant.takeStep(Direction.South);
+            List<Direction> directions = ant.getPossibleDirections();
             assertEquals(0, directions.size());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    public void dead_end_handler() {
-        try {
-            Maze maze = Maze.createMaze("./testMazes/dead end maze.txt");
-            PathSpecification spec = PathSpecification.readCoordinates("./testMazes/dead end coordinates.txt");
-
-            Ant ant = new Ant(maze, spec);
-
-            ant.setCurrentPosition(new Coordinate(0, 0));
-            assertEquals(true, ant.getMaze().isPath(new Coordinate(1, 2)));
-
-            ant.takeStep(Direction.South);
-            ant.takeStep(Direction.South);
-            ant.takeStep(Direction.East);
-            ant.takeStep(Direction.East);
-            ant.takeStep(Direction.East);
-
-            System.out.println("cp: " + ant.getCurrentPosition());
-
-            assertEquals(5, ant.getRoute().size());
-            ant.deadEndHandler();
-            assertEquals(0, ant.getCurrentPosition().getX());
-            assertEquals(2, ant.getCurrentPosition().getY());
-            assertEquals(2, ant.getRoute().size());
-            ant.takeStep(Direction.South);
-            ant.takeStep(Direction.South);
-            assertEquals(4, ant.getRoute().size());
-            assertEquals(false, ant.getMaze().isPath(new Coordinate(1, 2)));
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -103,8 +64,8 @@ public class AntTest {
 
             ant.setCurrentPosition(new Coordinate(0, 0));
 
-            assertEquals(2, ant.getPossibleDirections(false).size());
-            double[] factors = ant.getEuclidianProbabilities(ant.getPossibleDirections(false));
+            assertEquals(2, ant.getPossibleDirections().size());
+            double[] factors = ant.getEuclideanProbabilities(ant.getPossibleDirections());
 
             double eucDist1 = Math.sqrt(725);
             double eucDist2 = Math.sqrt(745);
@@ -121,7 +82,7 @@ public class AntTest {
     }
 
     @Test
-    public void get_euclidian_factors2() {
+    public void get_euclidean_factors2() {
         try {
             Maze maze = Maze.createMaze("./data/medium maze.txt");
 
@@ -132,8 +93,8 @@ public class AntTest {
             ant.setCurrentPosition(new Coordinate(41, 20));
             ant.takeStep(Direction.South);
 
-            assertEquals(3, ant.getPossibleDirections(true).size());
-            double[] factors = ant.getEuclidianProbabilities(ant.getPossibleDirections(true));
+            assertEquals(3, ant.getPossibleDirections().size());
+            double[] factors = ant.getEuclideanProbabilities(ant.getPossibleDirections());
 
             double eucDist1 = Math.sqrt(5);
             double eucDist2 = Math.sqrt(5);

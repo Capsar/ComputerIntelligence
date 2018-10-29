@@ -87,7 +87,7 @@ public class AntColonyOptimization {
 
             for (int i = 0; i < numberOfAnts; i++)
                 routeFutures.add(es.submit(() -> {
-                    Ant4 ant = new Ant4(maze, spec);
+                    Ant ant = new Ant(maze, spec);
                     return ant.findRoute();
                 }));
 
@@ -124,7 +124,7 @@ public class AntColonyOptimization {
                 fastestRoute = r;
         }
 
-        Ant2 ant = new Ant2(maze, spec);
+        Ant ant = new Ant(maze, spec);
         Route lastAntRoute = ant.findRoute();
 
         maze.createPheromoneFile();
