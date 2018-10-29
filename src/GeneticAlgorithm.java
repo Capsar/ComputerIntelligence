@@ -269,12 +269,14 @@ public class GeneticAlgorithm {
 
     private double calculateDistance(int[] genes) {
         double totalDistance = 0;
+        totalDistance += pd.getStartDistances()[genes[0]];
         for (int i = 1; i < genes.length; i++) {
             int start = genes[i - 1];
             int end = genes[i];
             int distance = pd.getDistances()[start][end];
             totalDistance += distance;
         }
+        totalDistance += pd.getEndDistances()[genes[genes.length-1]];
         return totalDistance;
 
     }
