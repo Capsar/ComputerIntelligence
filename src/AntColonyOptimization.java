@@ -40,10 +40,17 @@ public class AntColonyOptimization {
      * Driver function for Assignment 1
      */
     public static void main(String[] args) throws FileNotFoundException {
+        boolean findParameters = false;
+
+        if (findParameters) {
+            findParameters(args);
+            return;
+        }
+
         //parameters
         int threads = 8;
         int numberOfAnts = 100;
-        int noGen = 50;
+        int noGen = 100;
         double Q = 500;
         double evaporate = 0.1;
 
@@ -62,10 +69,38 @@ public class AntColonyOptimization {
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
 
         //save solution
-        shortestRoute.writeToFile("./data/hard_solution.txt");
+        shortestRoute.writeToFile("./data/75_hard.txt");
 
         //print route size
         System.out.println("Route size: " + shortestRoute.size());
+
+    }
+
+    public static void findParameters(String[] args)  throws  FileNotFoundException {
+        //parameters
+        int threads = 8;
+        int numberOfAnts = 60;
+        int numberOfGenerations = 40;
+        double Q = 500;
+        double evaporate = 0.1;
+        for (numberOfAnts = 5; numberOfAnts < 100; numberOfAnts += 5) {
+            System.out.print("\n" + numberOfAnts + " ");
+            for(numberOfGenerations = 5; numberOfGenerations < 200; numberOfGenerations+= 5) {
+//        for(evaporate = 0.1; evaporate < 1.0; evaporate+= 0.05) {
+//            System.out.print("\n" + evaporate + " ");
+//            for(Q = 1; Q < 10; Q+= 1) {
+
+                //construct the optimization objects
+                Maze maze = Maze.createMaze("./data/medium maze.txt");
+                PathSpecification spec = PathSpecification.readCoordinates("./data/medium coordinates.txt");
+                AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, numberOfGenerations, Q, evaporate);
+
+                //run optimization
+                Route shortestRoute = aco.findShortestRoute(spec);
+                System.out.print(shortestRoute.size() + " ");
+
+            }
+        }
     }
 
     /**
@@ -129,7 +164,7 @@ public class AntColonyOptimization {
 
         maze.createPheromoneFile();
 
-        System.out.println("finished all gens with fastestRoute=" + fastestRoute.size() + " lastAntRoute=" + lastAntRoute.size() + " from " + spec.getStart() + " to " + spec.getEnd());
+//        System.out.println("finished all gens with fastestRoute=" + fastestRoute.size() + " lastAntRoute=" + lastAntRoute.size() + " from " + spec.getStart() + " to " + spec.getEnd());
 
         return fastestRoute;
     }

@@ -40,7 +40,7 @@ public class TSPData implements Serializable {
         //parameters
         int threads = 8;
         int numberOfAnts = 100;
-        int noGen = 50;
+        int noGen = 100;
         double Q = 500;
         double evaporate = 0.1;
 

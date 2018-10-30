@@ -29,8 +29,8 @@ public class GeneticAlgorithm {
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         //parameters
-        int populationSize = 1000;
-        int generations = 500;
+        int populationSize = 10000;
+        int generations = 1000;
         String persistFile = "./tmp/productMatrixDist";
 
         //setup optimization
@@ -98,7 +98,7 @@ public class GeneticAlgorithm {
 
             genePool = createChildren(genePool);
 
-            if (gen % 1000 == 0)
+            if (gen % 100 == 0)
                 System.out.println("Generation: " + gen);
         }
 
@@ -276,7 +276,7 @@ public class GeneticAlgorithm {
             int distance = pd.getDistances()[start][end];
             totalDistance += distance;
         }
-        totalDistance += pd.getEndDistances()[genes[genes.length-1]];
+        totalDistance += pd.getEndDistances()[genes[genes.length-1]] + genes.length;
         return totalDistance;
 
     }
