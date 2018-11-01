@@ -23,7 +23,7 @@ public class Main {
 
             Maze maze = Maze.createMaze(INPUT + "GC_Maze.txt");
             TSPData pd = TSPData.readSpecification(INPUT + "GC_Maze_Start-End.txt", INPUT + "GC_ProductCoordinates.txt");
-
+            pd.writeToFile(OUTPUT + "GC_TSPData");
             //parameters
             int threads = 8;
             int numberOfAnts = 100;
@@ -35,6 +35,8 @@ public class Main {
             //Create TSPData matrix with all products
             pd.calculateRoutes(aco);
 
+            //Check which classes to pickup
+            //Select corresponding products
             int[] products = readProducts(OUTPUT + "GC_Classes.txt");
 
             int populationSize = 10000;
@@ -45,8 +47,6 @@ public class Main {
             int[] solution = ga.solveTSP(pd);
             pd.writeActionFile(solution, OUTPUT + "Actions.txt");
 
-            //Check which classes to pickup
-            //Select corresponding products
 
 
 
