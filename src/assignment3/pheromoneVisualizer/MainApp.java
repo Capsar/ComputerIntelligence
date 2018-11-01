@@ -1,4 +1,4 @@
-package assignment3.PheromoneVisualizer;
+package assignment3.pheromoneVisualizer;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +17,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        URL url = new File("src/PheromoneVisualizer/pheromone.fxml").toURL();
+        URL url = getClass().getResource("/resources/assignment3/pheromoneVisualizer/pheromone.fxml");
         Parent root = FXMLLoader.load(url);
 
         Scene scene = new Scene(root, 1000, 1000);

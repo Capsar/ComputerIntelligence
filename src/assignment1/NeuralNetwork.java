@@ -1,18 +1,21 @@
+package assignment1;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Class that represents a neural network
  * Created by Sam van Berkel on 12/09/2018.
  */
-public class NeuralNetwork {
+public class NeuralNetwork implements Serializable {
     private final int inputLayerSize;
     private final int hiddenLayerSize;
     private final int outputLayerSize;
     private final double learningRate;
     private final double minInitialWeight;
     private final double maxInitialWeight;
-    private final double minInitialTreshold;
-    private final double maxInitialTreshold;
+    private final double minInitialThreshold;
+    private final double maxInitialThreshold;
     private ArrayList<Neuron> inputLayer;
     private ArrayList<Neuron> hiddenLayer;
     private ArrayList<Neuron> outputLayer;
@@ -24,8 +27,8 @@ public class NeuralNetwork {
         learningRate = network.learningRate;
         minInitialWeight = network.minInitialWeight;
         maxInitialWeight = network.maxInitialWeight;
-        minInitialTreshold = network.minInitialTreshold;
-        maxInitialTreshold = network.maxInitialTreshold;
+        minInitialThreshold = network.minInitialThreshold;
+        maxInitialThreshold = network.maxInitialThreshold;
         inputLayer = network.inputLayer;
         hiddenLayer = network.hiddenLayer;
         outputLayer = network.outputLayer;
@@ -37,37 +40,37 @@ public class NeuralNetwork {
      * @param hiddenLayerSize the amount of neurons in the hidden layer
      * @param outputLayerSize the amount of neurons in the output layer
      */
-    public NeuralNetwork(int inputLayerSize, int hiddenLayerSize, int outputLayerSize, double learningRate, double minInitialWeight, double maxInitialWeight, double minInitialTreshold, double maxInitialTreshold) {
+    public NeuralNetwork(int inputLayerSize, int hiddenLayerSize, int outputLayerSize, double learningRate, double minInitialWeight, double maxInitialWeight, double minInitialThreshold, double maxInitialThreshold) {
         this.inputLayerSize = inputLayerSize;
         this.hiddenLayerSize = hiddenLayerSize;
         this.outputLayerSize = outputLayerSize;
         this.learningRate = learningRate;
         this.minInitialWeight = minInitialWeight;
         this.maxInitialWeight = maxInitialWeight;
-        this.minInitialTreshold = minInitialTreshold;
-        this.maxInitialTreshold = maxInitialTreshold;
+        this.minInitialThreshold = minInitialThreshold;
+        this.maxInitialThreshold = maxInitialThreshold;
 
         // Initialize the arrays for the neurons
-        inputLayer = new ArrayList<Neuron>();
-        hiddenLayer = new ArrayList<Neuron>();
-        outputLayer = new ArrayList<Neuron>();
+        inputLayer = new ArrayList<>();
+        hiddenLayer = new ArrayList<>();
+        outputLayer = new ArrayList<>();
 
 
         // Create the neurons in the input layer (without connections)
         for (int i = 0; i < inputLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate, minInitialTreshold, maxInitialTreshold);
+            Neuron neuron = new Neuron(learningRate, minInitialThreshold, maxInitialThreshold);
             inputLayer.add(neuron);
         }
 
         // Create the neurons in the hidden layer (without connections)
         for (int i = 0; i < hiddenLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(),learningRate, minInitialTreshold, maxInitialTreshold);
+            Neuron neuron = new Neuron(learningRate, minInitialThreshold, maxInitialThreshold);
             hiddenLayer.add(neuron);
         }
 
         // Create the neurons in the output layer (without connections)
         for (int i = 0; i < outputLayerSize; i++) {
-            Neuron neuron = new Neuron(new ArrayList<Connection>(), new ArrayList<Connection>(), learningRate, minInitialTreshold, maxInitialTreshold);
+            Neuron neuron = new Neuron(learningRate, minInitialThreshold, maxInitialThreshold);
             outputLayer.add(neuron);
         }
 
@@ -91,129 +94,6 @@ public class NeuralNetwork {
                 currentNeuron.addOutput(connection);
                 destination.addInput(connection);
             }
-        }
-    }
-
-    public ArrayList<Neuron> getInputLayer() {
-        return inputLayer;
-    }
-
-    public ArrayList<Neuron> getHiddenLayer() {
-        return hiddenLayer;
-    }
-
-    public ArrayList<Neuron> getOutputLayer() {
-        return outputLayer;
-    }
-
-
-    public int getInputLayerSize() {
-        return inputLayerSize;
-    }
-
-    public int getHiddenLayerSize() {
-        return hiddenLayerSize;
-    }
-
-    public int getOutputLayerSize() {
-        return outputLayerSize;
-    }
-
-    public double getLearningRate() {
-        return learningRate;
-    }
-
-    public double getMinInitialWeight() {
-        return minInitialWeight;
-    }
-
-    public double getMaxInitialWeight() {
-        return maxInitialWeight;
-    }
-
-    public double getMinInitialTreshold() {
-        return minInitialTreshold;
-    }
-
-    public double getMaxInitialTreshold() {
-        return maxInitialTreshold;
-    }
-
-    /**
-     * Sets the weights for the connections between the input layer and the hidden layer.
-     * @param weights the weights that will be set
-     */
-    public void setWeightsInputHidden(double[] weights) {
-        int amountOfConnections = hiddenLayer.size() * inputLayer.size();
-
-        if (amountOfConnections != weights.length) {
-            System.out.println("Wrong amount of connections between input and hidden!");
-            return;
-        }
-
-        int index = 0;
-
-        // Create the connections between the input layer and the hidden layer
-        for (int i = 0; i < inputLayer.size(); i++) {
-            for (int j = 0; j < hiddenLayer.size(); j++) {
-                // Create a new connection between the input layer neuron and the hiddenlayer neuron and add it to both neurons
-                Neuron currentInputNeuron = inputLayer.get(i);
-                Neuron currentHiddenNeuron = hiddenLayer.get(j);
-
-                currentInputNeuron.getOutputs().get(j).setWeight(weights[index]);
-                currentHiddenNeuron.getInputs().get(i).setWeight(weights[index]);
-
-                index++;
-            }
-        }
-    }
-
-    /**
-     * Sets the weights for the connections between the hidden layer and the output layer.
-     * @param weights the weights that will be set
-     */
-    public void setWeightsHiddenOutput(double[] weights) {
-        int amountOfConnections = hiddenLayer.size() * outputLayer.size();
-
-        if (amountOfConnections != weights.length) {
-            System.out.println("Wrong amount of connections between hidden and output!");
-            return;
-        }
-
-        int index = 0;
-
-        // Create the connections between the input layer and the hidden layer
-        for (int i = 0; i < hiddenLayer.size(); i++) {
-            for (int j = 0; j < outputLayer.size(); j++) {
-                // Create a new connection between the input layer neuron and the hiddenlayer neuron and add it to both neurons
-                Neuron currentHiddenNeuron = hiddenLayer.get(i);
-                Neuron currentOutputNeuron = outputLayer.get(j);
-
-                currentHiddenNeuron.getOutputs().get(j).setWeight(weights[index]);
-                currentOutputNeuron.getInputs().get(i).setWeight(weights[index]);
-
-                index++;
-            }
-        }
-    }
-
-    /**
-     * Sets the tresholds of the neurons in the hidden layer.
-     * @param tresholds the tresholds that will be set
-     */
-    public void setTresholdsHiddenLayer(double[] tresholds) {
-        for (int i = 0; i < hiddenLayer.size(); i++) {
-            hiddenLayer.get(i).setTreshold(tresholds[i]);
-        }
-    }
-
-    /**
-     * Sets the tresholds of the neurons in the output layer.
-     * @param tresholds the tresholds that will be set
-     */
-    public void setTresholdsOutputLayer(double[] tresholds) {
-        for (int i = 0; i < outputLayer.size(); i++) {
-            outputLayer.get(i).setTreshold(tresholds[i]);
         }
     }
 
@@ -258,7 +138,7 @@ public class NeuralNetwork {
                 outputLayer.get(i).getInputs().get(j).adjustWeight();
             }
 
-            outputLayer.get(i).updateTreshold();
+            outputLayer.get(i).updateThreshold();
         }
 
         for (int i = 0; i < hiddenLayer.size(); i++) {
@@ -268,7 +148,7 @@ public class NeuralNetwork {
                 hiddenLayer.get(i).getInputs().get(j).adjustWeight();
             }
 
-            hiddenLayer.get(i).updateTreshold();
+            hiddenLayer.get(i).updateThreshold();
         }
     }
 
@@ -282,32 +162,22 @@ public class NeuralNetwork {
         return meanSquaredError;
     }
 
-    @Override
-    public NeuralNetwork clone(){
-        try {
-            return (NeuralNetwork) super.clone();
-        }catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return new NeuralNetwork(this);
-        }
-    }
-
     public void print() {
         System.out.println("Input neurons=" + this.inputLayerSize + ", hidden neurons=" + this.hiddenLayerSize + ", output neurons=" + this.outputLayerSize);
         System.out.println("input thresholds:");
-        inputLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        inputLayer.forEach(neuron -> System.out.print(neuron.getThreshold() + ", "));
         System.out.println("\n\nhidden thresholds:");
-        hiddenLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        hiddenLayer.forEach(neuron -> System.out.print(neuron.getThreshold() + ", "));
         System.out.println("\n\noutput thresholds:");
-        outputLayer.forEach(neuron -> System.out.print(neuron.getTreshold() + ", "));
+        outputLayer.forEach(neuron -> System.out.print(neuron.getThreshold() + ", "));
         System.out.println("\n\nweights of connections from input to hidden:");
         inputLayer.forEach(neuron -> {
-            System.out.println("\nNeuron with threshold=" + neuron.getTreshold());
+            System.out.println("\nNeuron with threshold=" + neuron.getThreshold());
             neuron.getOutputs().forEach(c -> System.out.println(c.getWeight() + ", "));
         });
         System.out.println("\n\nweights of connections from hidden to output:");
         hiddenLayer.forEach(neuron -> {
-            System.out.println("\nNeuron with threshold=" + neuron.getTreshold());
+            System.out.println("\nNeuron with threshold=" + neuron.getThreshold());
             neuron.getOutputs().forEach(c -> System.out.println(c.getWeight() + ", "));
         });
     }

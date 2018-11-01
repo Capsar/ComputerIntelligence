@@ -1,23 +1,23 @@
+package assignment1;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class NetworkResult {
+public class NetworkResult implements Serializable {
+    private static final long serialVersionUID = 0L;
 
-    private float percentageVali;
+    private float percentageValidation;
     private float percentageTest;
     private ArrayList<TrainTarget> trainingSet;
     private NeuralNetwork network;
     private float[] checkValidation;
     private float[] checkTest;
 
-    public NetworkResult(NeuralNetwork network, float percentageIncorrect) {
-        this.network = network;
-    }
-
     public NetworkResult(NeuralNetwork network, float[] checkValidation, float[] checkTest, ArrayList<TrainTarget> trainingSet) {
         this.network = network;
         this.checkValidation = checkValidation;
         this.checkTest = checkTest;
-        this.percentageVali = checkValidation[1];
+        this.percentageValidation = checkValidation[1];
         this.percentageTest = checkTest[1];
 
         this.trainingSet = trainingSet;
@@ -35,8 +35,8 @@ public class NetworkResult {
         return network;
     }
 
-    public float getPercentageVali() {
-        return percentageVali;
+    public float getPercentageValidation() {
+        return percentageValidation;
     }
 
     public float getPercentageTest() {

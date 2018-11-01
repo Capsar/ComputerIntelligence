@@ -1,7 +1,11 @@
+package assignment1;
+
+import java.io.Serializable;
+
 /**
  * Created by Sam van Berkel on 12/09/2018.
  */
-public class Connection {
+public class Connection implements Serializable {
     private Neuron start;
     private Neuron end;
     private double weight;

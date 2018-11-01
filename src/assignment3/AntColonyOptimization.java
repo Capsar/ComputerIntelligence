@@ -1,4 +1,6 @@
-package assignment3;import java.io.FileNotFoundException;
+package assignment3;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,13 +42,6 @@ public class AntColonyOptimization {
      * Driver function for Assignment 1
      */
     public static void main(String[] args) throws FileNotFoundException {
-        boolean findParameters = false;
-
-        if (findParameters) {
-            findParameters(args);
-            return;
-        }
-
         //parameters
         int threads = 8;
         int numberOfAnts = 100;
@@ -55,8 +50,8 @@ public class AntColonyOptimization {
         double evaporate = 0.1;
 
         //construct the optimization objects
-        Maze maze = Maze.createMaze("./data/hard maze.txt");
-        PathSpecification spec = PathSpecification.readCoordinates("./data/hard coordinates.txt");
+        Maze maze = Maze.createMaze("/resources/assignment3/hard_maze.txt");
+        PathSpecification spec = PathSpecification.readCoordinates("/resources/assignment3/hard_coordinates.txt");
         AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
 
         //save starting time
@@ -69,38 +64,11 @@ public class AntColonyOptimization {
         System.out.println("Time taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
 
         //save solution
-        shortestRoute.writeToFile("./data/75_hard.txt");
+        shortestRoute.writeToFile("./outputFiles/75_hard.txt");
 
         //print route size
         System.out.println("Route size: " + shortestRoute.size());
 
-    }
-
-    public static void findParameters(String[] args)  throws  FileNotFoundException {
-        //parameters
-        int threads = 8;
-        int numberOfAnts = 60;
-        int numberOfGenerations = 40;
-        double Q = 500;
-        double evaporate = 0.1;
-        for (numberOfAnts = 5; numberOfAnts < 100; numberOfAnts += 5) {
-            System.out.print("\n" + numberOfAnts + " ");
-            for(numberOfGenerations = 5; numberOfGenerations < 200; numberOfGenerations+= 5) {
-//        for(evaporate = 0.1; evaporate < 1.0; evaporate+= 0.05) {
-//            System.out.print("\n" + evaporate + " ");
-//            for(Q = 1; Q < 10; Q+= 1) {
-
-                //construct the optimization objects
-                Maze maze = Maze.createMaze("./data/medium maze.txt");
-                PathSpecification spec = PathSpecification.readCoordinates("./data/medium coordinates.txt");
-                AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, numberOfGenerations, Q, evaporate);
-
-                //run optimization
-                Route shortestRoute = aco.findShortestRoute(spec);
-                System.out.print(shortestRoute.size() + " ");
-
-            }
-        }
     }
 
     /**

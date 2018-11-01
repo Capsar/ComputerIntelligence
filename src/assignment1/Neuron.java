@@ -1,26 +1,30 @@
+package assignment1;
+
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Sam van Berkel on 12/09/2018.
  */
-public class Neuron {
-    private ArrayList<Connection> inputs;
-    private ArrayList<Connection> outputs;
-    private double treshold;
+public class Neuron implements Serializable {
+    private List<Connection> inputs;
+    private List<Connection> outputs;
+    private double threshold;
     private double learningRate;
     private double lastOutput;
     private double lastError;
     private double lastErrorGradient;
 
-    public Neuron(ArrayList<Connection> inputs, ArrayList<Connection> outputs, double learningRate, double minInitialTreshold, double maxInitialTreshold) {
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.treshold = minInitialTreshold + Math.random() * (maxInitialTreshold - minInitialTreshold);
+    public Neuron(double learningRate, double minInitialTreshold, double maxInitialTreshold) {
+        this.inputs = new ArrayList<>();
+        this.outputs = new ArrayList<>();
+        this.threshold = minInitialTreshold + Math.random() * (maxInitialTreshold - minInitialTreshold);
         this.learningRate = learningRate;
         lastOutput = 0;
     }
 
-    public ArrayList<Connection> getInputs() {
+    public List<Connection> getInputs() {
         return inputs;
     }
 
@@ -32,6 +36,10 @@ public class Neuron {
         return lastOutput;
     }
 
+    public void setLastOutput(double lastOutput) {
+        this.lastOutput = lastOutput;
+    }
+
     public double getLastError() {
         return lastError;
     }
@@ -40,28 +48,12 @@ public class Neuron {
         return lastErrorGradient;
     }
 
-    public double getTreshold() {
-        return treshold;
+    public double getThreshold() {
+        return threshold;
     }
 
-    public void setInputs(ArrayList<Connection> inputs) {
-        this.inputs = inputs;
-    }
-
-    public ArrayList<Connection> getOutputs() {
+    public List<Connection> getOutputs() {
         return outputs;
-    }
-
-    public void setOutputs(ArrayList<Connection> outputs) {
-        this.outputs = outputs;
-    }
-
-    public void setTreshold(double treshold) {
-        this.treshold = treshold;
-    }
-
-    public void setLastOutput(double lastOutput) {
-        this.lastOutput = lastOutput;
     }
 
     public void addInput(Connection connection) {
@@ -74,6 +66,7 @@ public class Neuron {
 
     /**
      * Computes the output of the neuron given a list of inputs.
+     *
      * @param inputValues list of inputs
      * @return the output of the neuron
      */
@@ -81,10 +74,10 @@ public class Neuron {
         double sum = 0;
 
         for (int i = 0; i < inputs.size(); i++) {
-            sum+= inputValues[i] * inputs.get(i).getWeight();
+            sum += inputValues[i] * inputs.get(i).getWeight();
         }
 
-        double result = sum - treshold;
+        double result = sum - threshold;
 
         double output = Activation.Sigmoid(result);
         lastOutput = output;
@@ -94,8 +87,9 @@ public class Neuron {
 
     /**
      * Computes the error between the output and the desired value.
+     *
      * @param inputValues list of inputs that will be used to calculate the output
-     * @param desired the desired output of the neuron
+     * @param desired     the desired output of the neuron
      * @return the error for the output
      */
     public double computeError(double[] inputValues, double desired) {
@@ -110,6 +104,7 @@ public class Neuron {
 
     /**
      * Computes the error gradient for a neuron that is in the output layer.
+     *
      * @param desired the desired output of the neuron
      * @return the error gradient of the neuron
      */
@@ -128,13 +123,14 @@ public class Neuron {
 
     /**
      * Computes the error gradient for a neuron that is in the hidden layer.
+     *
      * @return the error gradient of the neuron
      */
-    public double computeErrorGradientHiddenLayer(){
+    public double computeErrorGradientHiddenLayer() {
         double nextLayer = 0;
 
         for (int i = 0; i < outputs.size(); i++) {
-            nextLayer+= outputs.get(i).getEnd().getLastErrorGradient() * outputs.get(i).getWeight();
+            nextLayer += outputs.get(i).getEnd().getLastErrorGradient() * outputs.get(i).getWeight();
         }
 
         double errorGradient = lastOutput * (1 - lastOutput) * nextLayer;
@@ -145,10 +141,10 @@ public class Neuron {
     }
 
     /**
-     * Update the treshold of the neuron using the error gradient.
+     * Update the threshold of the neuron using the error gradient.
      */
-    public void updateTreshold() {
-        double deltaTreshold = learningRate * -1 * lastErrorGradient;
-        treshold+= deltaTreshold;
+    public void updateThreshold() {
+        double deltaThreshold = learningRate * -1 * lastErrorGradient;
+        threshold += deltaThreshold;
     }
 }

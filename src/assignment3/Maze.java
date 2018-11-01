@@ -1,4 +1,5 @@
 package assignment3;import java.io.*;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;
@@ -34,7 +35,8 @@ public class Maze {
      * @return A maze object with pheromones initialized to 0's inaccessible and 1's accessible.
      */
     public static Maze createMaze(String filePath) throws FileNotFoundException {
-        Scanner scan = new Scanner(new FileReader(filePath));
+        URL fileUrl = Maze.class.getResource(filePath);
+        Scanner scan = new Scanner(new FileReader(fileUrl.getPath()));
         int width = scan.nextInt();
         int length = scan.nextInt();
         int[][] mazeLayout = new int[width][length];
@@ -210,7 +212,7 @@ public class Maze {
      * Creates a text file with the amount of pheromone in each cell.
      */
     public void createPheromoneFile() {
-        File f = new File("data/pheromones.txt");
+        File f = new File("./outputFiles/pheromones.txt");
 
         try {
             f.createNewFile();

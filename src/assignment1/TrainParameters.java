@@ -1,3 +1,5 @@
+package assignment1;
+
 /**
  * Created by Sam van Berkel on 19/09/2018.
  */

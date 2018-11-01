@@ -1,4 +1,7 @@
-package assignment3;import sort.QuickSort;
+package assignment3;
+
+
+import assignment3.sort.QuickSort;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,6 +41,7 @@ public class GeneticAlgorithm {
         try {
             tspData = TSPData.readFromFile(persistFile);
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Failed to load file.");
         }
 
@@ -46,7 +50,7 @@ public class GeneticAlgorithm {
 
         //run optimzation and write to file
         int[] solution = ga.solveTSP(tspData);
-        tspData.writeActionFile(solution, "./data/TSP solution.txt");
+        tspData.writeActionFile(solution, "./outputFiles/TSP solution.txt");
     }
 
     /**

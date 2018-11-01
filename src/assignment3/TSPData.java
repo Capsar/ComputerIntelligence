@@ -1,4 +1,5 @@
 package assignment3;import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -44,12 +45,12 @@ public class TSPData implements Serializable {
         double Q = 500;
         double evaporate = 0.1;
 
-        String persistFile = "tmp/productMatrixDist";
-        String TSPpath = "data/tsp products.txt";
-        String coordinates = "data/hard coordinates.txt";
+        String persistFile = "./tmp/productMatrixDist";
+        String TSPpath = "/resources/assignment3/tsp_products.txt";
+        String coordinates = "/resources/assignment3/hard_coordinates.txt";
 
         //construct optimization
-        Maze maze = Maze.createMaze("./data/hard maze.txt");
+        Maze maze = Maze.createMaze("/resources/assignment3/hard_maze.txt");
         TSPData pd = TSPData.readSpecification(coordinates, TSPpath);
         AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
 
@@ -85,11 +86,13 @@ public class TSPData implements Serializable {
      * Read a TSP problem specification based on a coordinate file and a product file
      *
      * @param coordinates Path to the coordinate file
-     * @param productFile Path to the product file
+     * @param productPath Path to the product file
      * @return TSP object with uninitiatilized routes
      */
-    public static TSPData readSpecification(String coordinates, String productFile) throws FileNotFoundException {
-        Scanner scan = new Scanner(new FileReader(productFile));
+    public static TSPData readSpecification(String coordinates, String productPath) throws FileNotFoundException {
+        URL productUrl = TSPData.class.getResource(productPath);
+        URL coordinatesUrl = TSPData.class.getResource(coordinates);
+        Scanner scan = new Scanner(new FileReader(productUrl.getPath()));
         ArrayList<Coordinate> productLocations = new ArrayList<>();
         scan.useDelimiter(Pattern.compile("[:,;]\\s*"));
         int numberOfProducts = scan.nextInt();
@@ -99,7 +102,7 @@ public class TSPData implements Serializable {
             int y = scan.nextInt();
             productLocations.add(new Coordinate(x, y));
         }
-        PathSpecification spec = PathSpecification.readCoordinates(coordinates);
+        PathSpecification spec = PathSpecification.readCoordinates(coordinatesUrl.getPath());
 
         return new TSPData(productLocations, spec);
     }

@@ -1,17 +1,13 @@
-package assignment3.PheromoneVisualizer;
+package assignment3.pheromoneVisualizer;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Glow;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.text.Font;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -110,7 +106,7 @@ public class PheromoneController implements Initializable {
      * Read a text file with the amounts of pheromone and fill the two dimensional pheromone array
      */
     public void readPheromoneFile() {
-        File file = new File("data/pheromones.txt");
+        File file = new File("./outputFiles/pheromones.txt");
 
         maxPheromone = Double.MIN_VALUE;
 

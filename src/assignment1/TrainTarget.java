@@ -1,8 +1,12 @@
+package assignment1;
+
+import java.io.Serializable;
+
 /**
  * Products class that contains a single line of the training files
  * Created by Sam van Berkel on 12/09/2018.
  */
-public class TrainTarget {
+public class TrainTarget implements Serializable {
     private double[] inputs;
     private double[] desiredOutputs;
 

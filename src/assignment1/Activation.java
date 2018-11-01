@@ -1,3 +1,5 @@
+package assignment1;
+
 /**
  * Class that contains the activation functions for perceptrons
  * Created by Sam van Berkel on 12/09/2018.
