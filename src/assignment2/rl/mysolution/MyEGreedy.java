@@ -1,6 +1,6 @@
-package tudelft.rl.mysolution;
+package assignment2.rl.mysolution;
 
-import tudelft.rl.*;
+import assignment2.rl.*;
 
 import java.util.ArrayList;
 import java.util.Collections;

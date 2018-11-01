@@ -1,4 +1,4 @@
-package tudelft.rl.mysolution;
+package assignment2.rl.mysolution;
 
 import java.io.File;
 import java.net.URL;
@@ -10,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Application that launches the maze, the training and initialization of the maze is done in the mazeController.
+ * Application that launches the maze, the training and initialization of the maze is done in the assignment2.mazeController.
  */
 public class RunMe extends Application {
 

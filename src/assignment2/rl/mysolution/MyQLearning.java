@@ -1,10 +1,10 @@
-package tudelft.rl.mysolution;
+package assignment2.rl.mysolution;
 
 import java.util.ArrayList;
 
-import tudelft.rl.Action;
-import tudelft.rl.QLearning;
-import tudelft.rl.State;
+import assignment2.rl.Action;
+import assignment2.rl.QLearning;
+import assignment2.rl.State;
 
 public class MyQLearning extends QLearning {
 

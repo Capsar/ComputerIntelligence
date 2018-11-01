@@ -1,9 +1,9 @@
-package tudelft.rl.mysolution;
+package assignment2.rl.mysolution;
 
-import tudelft.rl.Action;
-import tudelft.rl.Agent;
-import tudelft.rl.Maze;
-import tudelft.rl.State;
+import assignment2.rl.Action;
+import assignment2.rl.Agent;
+import assignment2.rl.Maze;
+import assignment2.rl.State;
 
 import java.io.File;
 import java.math.BigDecimal;
