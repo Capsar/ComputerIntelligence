@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Class that trains a neural network
@@ -89,8 +90,8 @@ public class Trainer {
         return trainingSet;
     }
 
-    public static ArrayList<double[]> loadInputData(String filePath) {
-        ArrayList<double[]> inputData = new ArrayList<>();
+    public static List<double[]> loadInputData(String filePath) {
+        List<double[]> inputData = new ArrayList<>();
         URL fileUrl = Trainer.class.getResource(filePath);
 
         File inputs = new File(fileUrl.getPath());
@@ -146,6 +147,30 @@ public class Trainer {
 
     }
 
+    /**
+     * Creates a file called classes.txt containing the matching classes for the given input file
+     *
+     * @param inputPath the url of the file containing the features
+     */
+    public static void createOutputFile(NeuralNetwork network, String inputPath, String outputPath) {
+
+        List<double[]> inputs = loadInputData(inputPath);
+        System.out.println("Loaded " + inputs.size() + " inputs");
+        try {
+            PrintWriter printWriter = new PrintWriter(outputPath);
+            for (double[] input : inputs) {
+                int computedClass = convertOutputsToClass(network.computeOutput(input));
+                printWriter.println(computedClass);
+            }
+
+            printWriter.close();
+            System.out.println("Created file with classes");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public int trainKFoldNetwork() {
         int amountOfEpochs = 0;
         int test = 0;
@@ -184,7 +209,7 @@ public class Trainer {
         float[] checkValidation = checkKFoldNetwork(validation);
         float[] checkTest = checkKFoldNetwork(test);
         System.out.println("Epochs=" + amountOfEpochs + " -V- MSE=" + checkValidation[2] + " E=" + checkValidation[0] + " P=" + checkValidation[1] + "%" +
-                                                        " -T- MSE=" + checkTest[2] + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
+                " -T- MSE=" + checkTest[2] + " E=" + checkTest[0] + " P=" + checkTest[1] + "%");
         this.networkResults.add(new NetworkResult(this.neuralNetwork, checkValidation, checkTest, this.trainingSet));
 
         return amountOfEpochs;
@@ -246,30 +271,6 @@ public class Trainer {
 
     public ArrayList<NetworkResult> getNetworkResults() {
         return networkResults;
-    }
-
-    /**
-     * Creates a file called classes.txt containing the matching classes for the given input file
-     *
-     * @param inputPath the url of the file containing the features
-     */
-    public void createOutputFile(String inputPath, String outputPath) {
-
-        ArrayList<double[]> inputs = loadInputData(inputPath);
-        System.out.println("Loaded " + inputs.size() + " inputs");
-        try {
-            PrintWriter printWriter = new PrintWriter(outputPath);
-            for (double[] input : inputs) {
-                int computedClass = convertOutputsToClass(neuralNetwork.computeOutput(input));
-                printWriter.println(computedClass);
-            }
-
-            printWriter.close();
-            System.out.println("Created file with classes");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
 }

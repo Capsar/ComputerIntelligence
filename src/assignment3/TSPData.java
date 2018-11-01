@@ -57,7 +57,6 @@ public class TSPData implements Serializable {
         //save starting time
         long startTime = System.currentTimeMillis();
 
-
         //run optimization and write to file
         pd.calculateRoutes(aco);
         pd.writeToFile(persistFile);

@@ -14,6 +14,7 @@ public class GeneticAlgorithm {
 
     private int generations;
     private int popSize;
+    private int[] products = null;
     private TSPData pd;
 
     /**
@@ -26,6 +27,20 @@ public class GeneticAlgorithm {
         this.generations = generations;
         this.popSize = popSize;
     }
+
+    /**
+     * Constructs a new 'genetic algorithm' object.
+     *
+     * @param generations the amount of generations.
+     * @param popSize     the population size.
+     * @param products    the products to be picked up.
+     */
+    public GeneticAlgorithm(int generations, int popSize, int[] products) {
+        this.generations = generations;
+        this.popSize = popSize;
+        this.products = products;
+    }
+
 
     /**
      * Assignment 2.b
@@ -294,6 +309,9 @@ public class GeneticAlgorithm {
 
     private int[] newChromosome() {
         int[] solution = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+        if(products != null)
+            solution = products.clone();
+
         return shuffle(solution).clone();
     }
 
@@ -329,34 +347,6 @@ public class GeneticAlgorithm {
             System.out.print("Length=" + calculateDistance(genePool[i]) + " Fitness=" + (float) fitness[i] + " Gene=");
             for (int j = 0; j < genePool[0].length; j++) {
                 int x = genePool[i][j];
-                System.out.print(x + ", ");
-            }
-            System.out.println("");
-        }
-        System.out.println("");
-    }
-
-
-    private void printDoubleArray(double[] list) {
-        for (int j = 0; j < list.length; j++) {
-            double x = list[j];
-            System.out.print(x + ", ");
-        }
-        System.out.println("");
-    }
-
-    private void printIntArray(int[] list) {
-        for (int j = 0; j < list.length; j++) {
-            int x = list[j];
-            System.out.print(x + ", ");
-        }
-        System.out.println("");
-    }
-
-    private void printDoubleArray(int[][] list) {
-        for (int i = 0; i < list.length; i++) {
-            for (int j = 0; j < list[0].length; j++) {
-                int x = list[i][j];
                 System.out.print(x + ", ");
             }
             System.out.println("");

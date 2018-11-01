@@ -10,7 +10,7 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * Main app that launches the pheromone visualizer.
+ * MainAssignment1 app that launches the pheromone visualizer.
  * Created by Sam van Berkel on 25/10/2018.
  */
 public class MainApp extends Application {
