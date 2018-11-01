@@ -1,4 +1,4 @@
-package tudelft.rl;
+package assignment2.rl;
 
 import java.util.ArrayList;
 import java.util.HashMap;

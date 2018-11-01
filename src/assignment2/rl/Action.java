@@ -1,4 +1,4 @@
-package tudelft.rl;
+package assignment2.rl;
 
 public class Action {
 	public String id;

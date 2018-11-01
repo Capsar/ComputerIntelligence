@@ -1,14 +1,10 @@
-package tudelft.rl;
+package assignment2.rl;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.StringTokenizer;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class Maze {
 	private Action[] actions;

@@ -1,3 +1,7 @@
+package assignment2;
+
+import assignment2.rl.Agent;
+import assignment2.rl.State;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -6,8 +10,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
-import tudelft.rl.*;
-import tudelft.rl.mysolution.StaticRunMe;
+import assignment2.rl.mysolution.StaticRunMe;
 
 import java.net.URL;
 import java.util.ArrayList;
