@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 /**
  * Created by Sam van Berkel on 18/09/2018.
  */
-public class Main {
+public class MainAssignment1 {
 
     public static final String DATA = "/resources/assignment1/";
 
@@ -20,11 +20,9 @@ public class Main {
 
         NetworkResult result;
         try {
-            result = readFromFile("./tmp/networkResult");
+            result = readFromFile("");
+            System.out.println("Found NetworkResult!");
         } catch (Exception readFileException) {
-            readFileException.printStackTrace();
-
-
             ArrayList<Future> resultFutures = new ArrayList<>();
             ArrayList<NetworkResult> results = new ArrayList<>();
             ExecutorService es = Executors.newFixedThreadPool(8);
@@ -81,7 +79,7 @@ public class Main {
         }
 
         //Print the classifications of the unknown features into classes.txt
-        trainer.createOutputFile(DATA + "unknown.txt", "./outputFiles/classes.txt");
+        Trainer.createOutputFile(result.getNetwork(), DATA + "unknown.txt", "./outputFiles/classes.txt");
 
     }
 
