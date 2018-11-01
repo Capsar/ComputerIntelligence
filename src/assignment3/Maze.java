@@ -1,4 +1,4 @@
-import java.io.*;
+package assignment3;import java.io.*;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Scanner;

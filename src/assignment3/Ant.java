@@ -1,4 +1,4 @@
-import java.util.*;
+package assignment3;import java.util.*;
 
 /**
  * Class that represents the ants functionality.

@@ -1,4 +1,4 @@
-import java.io.Serializable;
+package assignment3;import java.io.Serializable;
 
 /**
  * Class representing a coordinate.

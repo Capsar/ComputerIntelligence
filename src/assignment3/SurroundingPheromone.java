@@ -1,4 +1,4 @@
-/**
+package assignment3; /**
  * Class containing the pheromone information around a certain point in the maze
  */
 public class SurroundingPheromone {

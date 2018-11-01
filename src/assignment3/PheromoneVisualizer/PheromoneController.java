@@ -1,4 +1,4 @@
-package PheromoneVisualizer;
+package assignment3.PheromoneVisualizer;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

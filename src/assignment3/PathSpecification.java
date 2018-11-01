@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+package assignment3;import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Serializable;
 import java.util.Scanner;

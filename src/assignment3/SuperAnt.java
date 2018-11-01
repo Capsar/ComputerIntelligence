@@ -1,4 +1,4 @@
-/**
+package assignment3; /**
  * Super class for Ant containing al basic methods.
  */
 public class SuperAnt {

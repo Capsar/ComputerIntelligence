@@ -1,4 +1,4 @@
-import java.io.*;
+package assignment3;import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;

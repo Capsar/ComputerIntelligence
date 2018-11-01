@@ -1,4 +1,4 @@
-import java.util.EnumMap;
+package assignment3;import java.util.EnumMap;
 
 /**
  * Enum representing the directions an ant can take.
