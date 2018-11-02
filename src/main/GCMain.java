@@ -1,3 +1,5 @@
+package main;
+
 import assignment1.MainAssignment1;
 import assignment1.NetworkResult;
 import assignment1.NeuralNetwork;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class Main {
+public class GCMain {
 
     public static final String INPUT = "/resources/grandChallenge/";
     public static final String OUTPUT = "./outputFiles/GC/";
@@ -22,24 +24,31 @@ public class Main {
             Trainer.createOutputFile(network, INPUT + "GC_FeatureData.txt", OUTPUT + "GC_Classes.txt");
 
             Maze maze = Maze.createMaze(INPUT + "GC_Maze.txt");
-            TSPData pd = TSPData.readSpecification(INPUT + "GC_Maze_Start-End.txt", INPUT + "GC_ProductCoordinates.txt");
-            pd.writeToFile(OUTPUT + "GC_TSPData");
-            //parameters
-            int threads = 8;
-            int numberOfAnts = 100;
-            int noGen = 100;
-            double Q = 500;
-            double evaporate = 0.1;
-            AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
+            TSPData pd;
+            try {
+                pd = TSPData.readFromFile(OUTPUT + "GC_TSPData");
+            } catch(Exception e) {
+                e.printStackTrace();
+                pd = TSPData.readSpecification(INPUT + "GC_Maze_Start-End.txt", INPUT + "GC_ProductCoordinates.txt");
+                //parameters
+                int threads = 8;
+                int numberOfAnts = 75;
+                int noGen = 50;
+                double Q = 500;
+                double evaporate = 0.1;
+                AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
 
-            //Create TSPData matrix with all products
-            pd.calculateRoutes(aco);
+                //Create TSPData matrix with all products
+                pd.calculateRoutes(aco);
+                pd.writeToFile(OUTPUT + "GC_TSPData");
+            }
 
             //Check which classes to pickup
             //Select corresponding products
             int[] products = readProducts(OUTPUT + "GC_Classes.txt");
+            printIntArray(products);
 
-            int populationSize = 10000;
+            int populationSize = 1000;
             int generations = 1000;
             GeneticAlgorithm ga = new GeneticAlgorithm(generations, populationSize, products);
 
@@ -57,9 +66,9 @@ public class Main {
     }
 
     private static int[] readProducts(String filePath) {
-        int class1 = 0;
-        int class2 = 0;
-        int class3 =  0;
+        int class1 = 3;
+        int class2 = 4;
+        int class3 =  6;
         try {
             File file = new File(filePath);
             Scanner scan = new Scanner(new FileReader(file));

@@ -2,6 +2,7 @@ package assignment3;
 
 
 import assignment3.sort.QuickSort;
+import main.GCMain;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -187,10 +188,11 @@ public class GeneticAlgorithm {
             clearNodeFromNeighbourList(nextNode, neighbourList);
 
             int newNode;
-            if (isArrayAllNegativeOne(neighbourList[nextNode])) {
+            int q = indexOf(parent1, nextNode);
+            if (q == -1 || isArrayAllNegativeOne(neighbourList[q])) {
                 newNode = getRandomUnUsedNode(newChromosome);
             } else {
-                newNode = getNextNode(nextNode, neighbourList);
+                newNode = getNextNode(q, neighbourList);
             }
             nextNode = newNode;
         }
@@ -211,7 +213,9 @@ public class GeneticAlgorithm {
             if (neighbour == -1)
                 continue;
 
-            int numberOfNeighboursOfNeighbour = size(neighbourList[neighbour]);
+
+            int q = indexOf(neighbours, neighbour);
+            int numberOfNeighboursOfNeighbour = size(neighbourList[q]);
 
             if (numberOfNeighboursOfNeighbour <= neighboursSize) {
                 neighboursSize = numberOfNeighboursOfNeighbour;
@@ -271,14 +275,23 @@ public class GeneticAlgorithm {
                 right = parent[i + 1];
             }
             if (left != -1 && right != -1) {
-                for (int k = 0; k < neighbourList[j].length; k++) {
-                    if (neighbourList[j][k] == -1 && !contains(neighbourList[j], left))
-                        neighbourList[j][k] = left;
-                    else if (neighbourList[j][k] == -1 && !contains(neighbourList[j], right))
-                        neighbourList[j][k] = right;
+                int q = indexOf(parent, j);
+                for (int k = 0; k < neighbourList[q].length; k++) {
+                    if (neighbourList[q][k] == -1 && !contains(neighbourList[q], left))
+                        neighbourList[q][k] = left;
+                    else if (neighbourList[q][k] == -1 && !contains(neighbourList[q], right))
+                        neighbourList[q][k] = right;
                 }
             }
         }
+    }
+
+    private int indexOf(int[] parents, int j) {
+        for(int i = 0; i < parents.length; i++) {
+            if(parents[i] == j)
+                return i;
+        }
+        return -1;
     }
 
     private double calculateFitness(double shortest, int[] genes) {
