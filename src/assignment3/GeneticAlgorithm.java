@@ -300,7 +300,7 @@ public class GeneticAlgorithm {
 
     }
 
-    private boolean contains(int[] ints, int i) {
+    public static boolean contains(int[] ints, int i) {
         for (int j : ints)
             if (j == i)
                 return true;
