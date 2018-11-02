@@ -60,7 +60,7 @@ public class Ant extends SuperAnt {
                 dir = route.removeLast();
                 takeStepBack(dir);
             } else {
-                updateDirectionProbabilities(possibleDirections, true);
+                updateDirectionProbabilities(possibleDirections, false);
                 dir = weightedPossibleDirections.get();
                 takeStep(dir);
             }

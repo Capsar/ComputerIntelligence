@@ -69,8 +69,7 @@ public class PathSpecification implements Serializable{
      * @return Specification contained in the file
      */
     public static PathSpecification readCoordinates(String filePath) throws FileNotFoundException {
-        URL fileUrl = PathSpecification.class.getResource(filePath);
-        Scanner scan = new Scanner(new FileReader(fileUrl.getPath()));
+        Scanner scan = new Scanner(new FileReader(filePath));
         scan.useDelimiter(Pattern.compile("[,;]\\s*"));
         int startX = scan.nextInt();
         int startY = scan.nextInt();
