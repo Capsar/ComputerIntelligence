@@ -35,7 +35,7 @@ public class GCMain {
                 //parameters
                 int threads = 8;
                 int numberOfAnts = 100;
-                int noGen = 100;
+                int noGen = 200;
                 double Q = 500;
                 double evaporate = 0.1;
                 AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
@@ -48,7 +48,7 @@ public class GCMain {
             //Check which classes to pickup
             //Select corresponding products
 
-            int populationSize = 1000;
+            int populationSize = 10000;
             int generations = 1000;
             GeneticAlgorithm ga = new GeneticAlgorithm(generations, populationSize, products);
 
