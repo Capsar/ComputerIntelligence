@@ -56,9 +56,10 @@ public class TSPData implements Serializable {
 
         //save starting time
         long startTime = System.currentTimeMillis();
+        int[] soultion = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
 
         //run optimization and write to file
-        pd.calculateRoutes(aco);
+        pd.calculateRoutes(aco,soultion);
         pd.writeToFile(persistFile);
 
         //print time taken
@@ -111,11 +112,12 @@ public class TSPData implements Serializable {
      * Additionally generate arrays that contain the length of all the routes.
      *
      * @param aco
+     * @param products
      */
-    public void calculateRoutes(AntColonyOptimization aco) {
-        productToProduct = buildDistanceMatrix(aco);
-        startToProduct = buildStartToProducts(aco);
-        productToEnd = buildProductsToEnd(aco);
+    public void calculateRoutes(AntColonyOptimization aco, int[] products) {
+        productToProduct = buildDistanceMatrix(aco, products);
+        startToProduct = buildStartToProducts(aco ,products);
+        productToEnd = buildProductsToEnd(aco, products);
         buildDistanceLists();
     }
 
@@ -125,15 +127,17 @@ public class TSPData implements Serializable {
      * @param aco
      * @return Optimal routes between all products in 2d array
      */
-    private Route[][] buildDistanceMatrix(AntColonyOptimization aco) {
+    private Route[][] buildDistanceMatrix(AntColonyOptimization aco ,int[] products) {
         int numberOfProduct = productLocations.size();
         Route[][] productToProduct = new Route[numberOfProduct][numberOfProduct];
         for (int i = 0; i < numberOfProduct; i++) {
             for (int j = 0; j < numberOfProduct; j++) {
-                Coordinate start = productLocations.get(i);
-                Coordinate end = productLocations.get(j);
-                System.out.println("Find shortest route from: " + start + "  to: " + end);
-                productToProduct[i][j] = aco.findShortestRoute(new PathSpecification(start, end));
+                if (GeneticAlgorithm.contains(products, i) && GeneticAlgorithm.contains(products, j)) {
+                    Coordinate start = productLocations.get(i);
+                    Coordinate end = productLocations.get(j);
+                    System.out.println("Find shortest route from: " + start + "  to: " + end);
+                    productToProduct[i][j] = aco.findShortestRoute(new PathSpecification(start, end));
+                }
             }
         }
         return productToProduct;
@@ -145,11 +149,13 @@ public class TSPData implements Serializable {
      * @param aco
      * @return Optimal route from start to products
      */
-    private Route[] buildStartToProducts(AntColonyOptimization aco) {
+    private Route[] buildStartToProducts(AntColonyOptimization aco, int[] products) {
         Coordinate start = spec.getStart();
         Route[] startToProducts = new Route[productLocations.size()];
         for (int i = 0; i < productLocations.size(); i++) {
-            startToProducts[i] = aco.findShortestRoute(new PathSpecification(start, productLocations.get(i)));
+            if (GeneticAlgorithm.contains(products, i)) {
+                startToProducts[i] = aco.findShortestRoute(new PathSpecification(start, productLocations.get(i)));
+            }
         }
         return startToProducts;
     }
@@ -160,11 +166,13 @@ public class TSPData implements Serializable {
      * @param aco
      * @return Optimal route from products to end
      */
-    private Route[] buildProductsToEnd(AntColonyOptimization aco) {
+    private Route[] buildProductsToEnd(AntColonyOptimization aco, int[] products) {
         Coordinate end = spec.getEnd();
         Route[] productsToEnd = new Route[productLocations.size()];
         for (int i = 0; i < productLocations.size(); i++) {
-            productsToEnd[i] = aco.findShortestRoute(new PathSpecification(productLocations.get(i), end));
+            if (GeneticAlgorithm.contains(products, i)) {
+                productsToEnd[i] = aco.findShortestRoute(new PathSpecification(productLocations.get(i), end));
+            }
         }
         return productsToEnd;
     }
@@ -179,10 +187,17 @@ public class TSPData implements Serializable {
         endDistances = new int[numberOfProducts];
         for (int i = 0; i < numberOfProducts; i++) {
             for (int j = 0; j < numberOfProducts; j++) {
-                distances[i][j] = productToProduct[i][j].size();
+                if (productToProduct[i][j] != null) {
+                    distances[i][j] = productToProduct[i][j].size();
+                }
             }
-            startDistances[i] = startToProduct[i].size();
-            endDistances[i] = productToEnd[i].size();
+            if (startToProduct[i] != null) {
+                startDistances[i] = startToProduct[i].size();
+            }
+
+            if (productToEnd[i] != null) {
+                endDistances[i] = productToEnd[i].size();
+            }
         }
     }
 
