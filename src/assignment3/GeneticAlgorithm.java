@@ -2,7 +2,6 @@ package assignment3;
 
 
 import assignment3.sort.QuickSort;
-import main.GCMain;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -286,14 +285,6 @@ public class GeneticAlgorithm {
         }
     }
 
-    private int indexOf(int[] parents, int j) {
-        for(int i = 0; i < parents.length; i++) {
-            if(parents[i] == j)
-                return i;
-        }
-        return -1;
-    }
-
     private double calculateFitness(double shortest, int[] genes) {
         double distance = calculateDistance(genes);
         return shortest / distance;
@@ -308,11 +299,20 @@ public class GeneticAlgorithm {
             int distance = pd.getDistances()[start][end];
             totalDistance += distance;
         }
-        totalDistance += pd.getEndDistances()[genes[genes.length-1]] + genes.length;
+        totalDistance += pd.getEndDistances()[genes[genes.length - 1]] + genes.length;
         return totalDistance;
 
     }
 
+    private int indexOf(int[] parents, int j) {
+        for (int i = 0; i < parents.length; i++) {
+            if (parents[i] == j)
+                return i;
+        }
+        return -1;
+    }
+
+    
     private boolean contains(int[] ints, int i) {
         for (int j : ints)
             if (j == i)
@@ -322,7 +322,7 @@ public class GeneticAlgorithm {
 
     private int[] newChromosome() {
         int[] solution = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
-        if(products != null)
+        if (products != null)
             solution = products.clone();
 
         return shuffle(solution).clone();
