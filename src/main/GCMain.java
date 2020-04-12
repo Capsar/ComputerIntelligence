@@ -34,8 +34,8 @@ public class GCMain {
                 pd = TSPData.readSpecification(INPUT + "GC_Maze_Start-End.txt", INPUT + "GC_ProductCoordinates.txt");
                 //parameters
                 int threads = 8;
-                int numberOfAnts = 1000;
-                int noGen = 200;
+                int numberOfAnts = 100;
+                int noGen = 100;
                 double Q = 500;
                 double evaporate = 0.1;
                 AntColonyOptimization aco = new AntColonyOptimization(maze, threads, numberOfAnts, noGen, Q, evaporate);
