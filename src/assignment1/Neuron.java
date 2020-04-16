@@ -86,38 +86,15 @@ public class Neuron implements Serializable {
     }
 
     /**
-     * Computes the error between the output and the desired value.
-     *
-     * @param inputValues list of inputs that will be used to calculate the output
-     * @param desired     the desired output of the neuron
-     * @return the error for the output
-     */
-    public double computeError(double[] inputValues, double desired) {
-        double result = computeOutput(inputValues);
-        double error = desired - result;
-
-        lastError = error;
-
-        return error;
-
-    }
-
-    /**
      * Computes the error gradient for a neuron that is in the output layer.
      *
      * @param desired the desired output of the neuron
      * @return the error gradient of the neuron
      */
     public double computeErrorGradientOutputLayer(double desired) {
-        double[] inputValues = new double[inputs.size()];
-
-        for (int i = 0; i < inputs.size(); i++) {
-            inputValues[i] = inputs.get(i).getStart().getLastOutput();
-        }
-
-        double errorGradient = lastOutput * (1 - lastOutput) * computeError(inputValues, desired);
+        lastError = desired - lastOutput;
+        double errorGradient = lastOutput * (1 - lastOutput) * lastError;
         lastErrorGradient = errorGradient;
-
         return errorGradient;
     }
 
@@ -144,7 +121,7 @@ public class Neuron implements Serializable {
      * Update the threshold of the neuron using the error gradient.
      */
     public void updateThreshold() {
-        double deltaThreshold = learningRate * -1 * lastErrorGradient;
-        threshold += deltaThreshold;
+        double deltaThreshold = learningRate * lastErrorGradient;
+        threshold -= deltaThreshold;
     }
 }
